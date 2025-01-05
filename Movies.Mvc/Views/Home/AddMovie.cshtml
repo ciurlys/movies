@@ -1,0 +1,19 @@
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@model HomeMovieViewModel
+<div class="row">
+    <p>Enter a new movie</p>
+    <form method="post">
+        @Html.AntiForgeryToken()
+        <div><input asp-for="Movie.Title" placeholder="Movie title"></div>
+        <div><input asp-for="Movie.Director" placeholder="Movie director"></div>
+        <div><input asp-for="Movie.ReleaseDate" placeholder="Movie release date"></div>
+        <div><input asp-for="Movie.Description" placeholder="Movie description"></div>
+        <input type="submit" value="Insert" class="btn btn-outline-primary">
+        <a href="/Home/Movies" class="btn btn-outline-secondary">Cancel</a>
+    </form>
+</div>
+@section Scripts{
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

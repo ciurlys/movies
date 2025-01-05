@@ -1,0 +1,82 @@
+﻿@model Movies.Mvc.Models.HomeMoviesViewModel
+@using Movies.EntityModels;
+<div class="row">
+    <h1 class="display-2">Movies</h1>
+    <a href="/Home/AddMovie" class="btn btn-primary">Add new movie</a>
+    <table class="table">
+        <thead class="thead-inverse">
+            <tr>
+                <th>Title</th>
+                <th>Director</th>
+                <th>Release Date</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.Movies is not null)
+            {
+                @foreach (Movie movie in Model.Movies)
+                {
+                    <tr>
+                        <td>@movie.Title</td>
+                        <td>@movie.Director</td>
+                        <td>@movie.ReleaseDate</td>
+                        <td>@movie.Description</td>
+                        <td>
+                            <a class="btn btn-primary" asp-controller="Home" asp-action="EditMovie" asp-route-id="@movie.MovieId">Edit</a>
+                            <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="@movie.MovieId">Delete</button>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>    
+
+@*MODAL FOR DELETION*@
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete this movie?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+@*JAVASCRIPT FOR DELETION*@
+<script>
+    let movieIdToDelete;
+
+    document.querySelectorAll('button[data-bs-toggle="modal"]').forEach(button => {
+        button.addEventListener('click', function () {
+            movieIdToDelete = this.getAttribute('data-id');
+        });
+    });
+
+    document.getElementById('confirmDelete').addEventListener('click', function () {
+        if (movieIdToDelete) {
+            fetch(`/Home/DeleteMovie/${movieIdToDelete}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    location.reload(); // Reload the page to reflect the changes
+                } else {
+                    alert('Failed to delete the movie.');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    });
+</script>

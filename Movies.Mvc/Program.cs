@@ -4,11 +4,12 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.General;
 using Movies.Mvc.Data;
+using Movies.EntityModels;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddApplicationDbContext();
-
-builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+builder.Services.AddDatabaseDeveloperPageExceptionFilter();  //Database for storing Users
+builder.Services.AddMoviesDataContext(); //Database for storing Movies
 
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApplicationDbContext>();
@@ -41,7 +42,7 @@ app.MapStaticAssets();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
+    pattern: "{controller=Home}/{action=Movies}/{id?}")
     .WithStaticAssets();
 
 app.MapRazorPages()
