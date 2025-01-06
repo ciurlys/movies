@@ -11,11 +11,13 @@ namespace Movies.Mvc.Controllers;
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
+    private readonly IWebHostEnvironment _webHostEnvironment;
 
     private readonly MoviesDataContext _db;
 
-    public HomeController(ILogger<HomeController> logger, MoviesDataContext db)
+    public HomeController(ILogger<HomeController> logger, MoviesDataContext db, IWebHostEnvironment webHostEnvironment)
     {
+        _webHostEnvironment = webHostEnvironment;
         _db = db;
         _logger = logger;
     }
@@ -68,7 +70,7 @@ public class HomeController : Controller
     //BODY: JSON Movie
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult EditMovie(Movie movie)
+    public IActionResult EditMovie(Movie movie, IFormFile? ImageFile)
     {
         int affected = 0;
         
@@ -78,6 +80,30 @@ public class HomeController : Controller
 
             if (movieInDb is not null)
             {
+                if (ImageFile != null && ImageFile.Length > 0)
+                {
+                    if (!string.IsNullOrWhiteSpace(movieInDb.ImagePath))
+                    {
+                        string oldFilePath = Path.Combine(_webHostEnvironment.WebRootPath, "covers", movieInDb.ImagePath);
+                        if (System.IO.File.Exists(oldFilePath))
+                        {
+                            System.IO.File.Delete(oldFilePath);
+                        }
+
+
+                        string uniqueFileName = Guid.NewGuid().ToString() + "_" + ImageFile.FileName;
+                        string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "covers");
+                        string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                        using (var fileStream = new FileStream(filePath, FileMode.Create))
+                        {
+                            ImageFile.CopyTo(fileStream);
+                        }
+                        movieInDb.ImagePath = uniqueFileName;
+
+                    }
+                }
+
                 movieInDb.Title = movie.Title;
                 movieInDb.Director = movie.Director;
                 movieInDb.ReleaseDate = movie.ReleaseDate;
@@ -145,12 +171,26 @@ public class HomeController : Controller
 
     //POST: /home/addmovie
     [HttpPost]
-    public IActionResult AddMovie(Movie movie)
+    public IActionResult AddMovie(Movie movie, IFormFile? ImageFile)
     {
+
         int affected = 0;
 
         if (ModelState.IsValid)
         {
+           if (ImageFile != null && ImageFile.Length > 0)
+            {
+                string uniqueFileName = Guid.NewGuid().ToString() + "_" + ImageFile.FileName;
+                string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "covers");
+                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    ImageFile.CopyTo(fileStream);
+                }
+                movie.ImagePath = uniqueFileName;
+            }
+         
             _db.Movies.Add(movie);
             affected = _db.SaveChanges();
         }

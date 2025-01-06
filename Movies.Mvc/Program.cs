@@ -5,6 +5,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.General;
 using Movies.Mvc.Data;
 using Movies.EntityModels;
+using System.Globalization;
+
+var defaultCulture = new CultureInfo("en-GB");
+CultureInfo.DefaultThreadCurrentCulture = defaultCulture;
+CultureInfo.DefaultThreadCurrentUICulture = defaultCulture;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddApplicationDbContext();

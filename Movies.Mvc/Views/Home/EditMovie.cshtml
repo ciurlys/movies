@@ -2,15 +2,18 @@
 @model HomeMovieViewModel
 <div class="row">
     <p>Edit the details for this movie:</p>
-    <form method="post">
+    <form method="post" enctype="multipart/form-data">
         @Html.AntiForgeryToken()
-        <div><input asp-for="Movie.MovieId" hidden /></div>
+        <div><input asp-for="Movie.MovieId" hidden />
+        <span asp-validation-for="Movie.Title" class="text-danger"></span>
+        </div>
         <div><input asp-for="Movie.Title" /></div>
         <div><input asp-for="Movie.Director" /></div>
-        <div><input asp-for="Movie.ReleaseDate" /></div>
-        <div><input asp-for="Movie.Description" /></div>
+        <div><input asp-for="Movie.ReleaseDate" type="date" /></div>
+        <div><textarea asp-for="Movie.Description" rows="7"></textarea></div>
+        <div><input type="file" class="form-control" accept="image/*" name="ImageFile" style="max-width: 500px;"/></div>
         <input type="submit" value="Save Changes" class="btn btn-outline-primary" />
-        <a href="/Home/Movies" class="btn btn-outline-secondary">Cancel</a>
+        <div><a href="/Home/Movies" class="btn btn-outline-secondary">Cancel</a></div>
     </form>
 </div>
 @section Scripts{

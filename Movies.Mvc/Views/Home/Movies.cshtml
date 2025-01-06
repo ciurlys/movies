@@ -7,6 +7,7 @@
         <thead class="thead-inverse">
             <tr>
                 <th>Title</th>
+                <th>Cover image</th>
                 <th>Director</th>
                 <th>Release Date</th>
                 <th>Description</th>
@@ -19,6 +20,15 @@
                 {
                     <tr>
                         <td>@movie.Title</td>
+                        <td>@if (!string.IsNullOrWhiteSpace(movie.ImagePath))
+                        {
+                <img src="~/covers/@movie.ImagePath" alt="@movie.Title cover" style="max-width: 100px;" />
+                        }
+                        else
+                        {
+                <img src="~/covers/missing.jpg" alt="no cover" style="max-width: 100px;" />
+                        }
+                        </td>
                         <td>@movie.Director</td>
                         <td>@movie.ReleaseDate</td>
                         <td>@movie.Description</td>
