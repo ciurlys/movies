@@ -119,7 +119,7 @@ namespace Movies.Mvc.Areas.Identity.Pages.Account
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
-                    return LocalRedirect(returnUrl);
+                    return RedirectToAction("Movies", "Home");
                 }
                 if (result.RequiresTwoFactor)
                 {

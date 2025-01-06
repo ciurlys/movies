@@ -1,7 +1,7 @@
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @model HomeMovieViewModel
 <div class="row">
-    <p>Enter a new movie</p>
+    <p>Enter a seen movie</p>
     <form method="post" enctype="multipart/form-data">
         @Html.AntiForgeryToken()
         <div class="add-input"><input asp-for="Movie.Title" placeholder="Movie title">
@@ -10,6 +10,7 @@
         <div><input asp-for="Movie.Director" placeholder="Movie director"></div>
         <div><input asp-for="Movie.ReleaseDate" placeholder="Movie release date" type="date" min="1888-01-01" value="@DateTime.Now.ToString("yyyy-MM-dd")"></div>
         <div><textarea asp-for="Movie.Description" placeholder="Movie description" rows="7" style="resize: both; min-width: 500px;"></textarea></div>
+        <div><input type="checkbox" value="true" asp-for="Movie.Seen" checked/> Mark as seen</div>
         <div><input type="file" class="form-control" accept="image/*" name="ImageFile" style="max-width: 500px;" /></div>
         <input type="submit" value="Insert" class="btn btn-outline-primary">
         <div><a href="/Home/Movies" class="btn btn-outline-secondary">Cancel</a></div>

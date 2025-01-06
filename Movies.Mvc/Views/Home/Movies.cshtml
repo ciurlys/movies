@@ -1,8 +1,44 @@
-﻿@model Movies.Mvc.Models.HomeMoviesViewModel
+﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@model Movies.Mvc.Models.HomeMoviesViewModel
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<IdentityUser> UserManager
 @using Movies.EntityModels;
 <div class="row">
     <h1 class="display-2">Movies</h1>
-    <a href="/Home/AddMovie" class="btn btn-primary">Add new movie</a>
+
+
+    @if (await UserManager.IsInRoleAsync(await UserManager.FindByNameAsync(User.Identity.Name), "Administrators"))
+    {
+        <a href="/Home/AddMovie" class="btn btn-primary">Add a movie</a>
+    }
+
+    @* search by title *@
+
+    <form method="get" asp-controller="Home" asp-action="Movies" >
+        <input type="text" name="title"  value="@ViewContext.HttpContext.Request.Query["title"]"/>
+        <input type="submit">
+    </form>
+
+
+    @* only show seen movies *@
+    <form method="get" asp-controller="Home" asp-action="Movies">
+        @if (@ViewContext.HttpContext.Request.Query["onlySeen"] == "t"
+            || @ViewContext.HttpContext.Session.GetString("onlySeen") == "t"){
+            <button type="submit" class="btn btn-primary" name="onlySeen" value="f">
+                Show all movies
+            </button>
+        }    
+        else
+        {
+
+            <button type="submit" class="btn btn-primary" name="onlySeen" value="t">
+                Show only seen movies
+            </button>
+        }
+    
+    </form>
+
+
     <table class="table">
         <thead class="thead-inverse">
             <tr>
@@ -30,11 +66,15 @@
                         }
                         </td>
                         <td>@movie.Director</td>
-                        <td>@movie.ReleaseDate</td>
+                        <td>@movie.ReleaseDate.Year</td>
                         <td>@movie.Description</td>
                         <td>
+                        
+                            <a class="btn btn-success" asp-controller="Comment" asp-action="AddComment" asp-route-id="@movie.MovieId">Comment</a>
+                        @if (await UserManager.IsInRoleAsync(await UserManager.FindByNameAsync(User.Identity.Name), "Administrators")){
                             <a class="btn btn-primary" asp-controller="Home" asp-action="EditMovie" asp-route-id="@movie.MovieId">Edit</a>
                             <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="@movie.MovieId">Delete</button>
+                        }
                         </td>
                     </tr>
                 }
@@ -43,7 +83,17 @@
     </table>
 </div>    
 
-@*MODAL FOR DELETION*@
+@* PAGES *@
+<div>
+    @for (int i = 0; i < (int)ViewData["PageCount"]; i++)
+    {
+        @* <a href="/Home/Movies/?onlySeen=@ViewData["onlySeen"]&title=@ViewContext.HttpContext.Request.Query["title"]&page=@i">@(i + 1)</a> *@
+        <a class="btn btn-light" href="/Home/Movies/?page=@i">@(i + 1)</a>
+    
+    }
+</div>
+
+@*HTML MODAL FOR DELETION*@
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -81,7 +131,7 @@
             })
             .then(response => {
                 if (response.ok) {
-                    location.reload(); // Reload the page to reflect the changes
+                    location.reload(); 
                 } else {
                     alert('Failed to delete the movie.');
                 }

@@ -1,0 +1,33 @@
+@model HomeMovieViewModel
+
+    <form method="get" asp-controller="Home" asp-action="Find" >
+    <input type="text" name="title"  value="@ViewContext.HttpContext.Request.Query["title"]"/>
+    <input type="submit">
+    </form>
+
+@if ((bool)ViewData["activeQuery"]){
+
+    <div class="movie-details">
+    <h1>@Model.Movie.Title</h1>
+    <p><strong>Director:</strong> @Model.Movie.Director</p>
+    <p><strong>Release Date:</strong> @Model.Movie.ReleaseDate.Year</p>
+    <p><strong>Description:</strong> @Model.Movie.Description</p>
+    @if (!string.IsNullOrEmpty(@Model.Movie.ImagePath))
+    {
+        <img src="@Model.Movie.ImagePath" alt="@Model.Movie.Title" style="max-width:300px;" />
+    }
+    </div>
+
+    <form method="post" enctype="multipart/form-data" asp-controller="Home" asp-action="AddFound">
+        @Html.AntiForgeryToken()
+        <div class="add-input"><input hidden asp-for="Movie.Title" placeholder="Movie title">
+        <span asp-validation-for="Movie.Title" class="text-danger"></span>
+        </div>
+        <div><input hidden asp-for="Movie.Director" placeholder="Movie director"></div>
+        <div><input hidden asp-for="Movie.ReleaseDate" placeholder="Movie release date" type="date" min="1888-01-01" ></div>
+        <div><textarea hidden asp-for="Movie.Description" placeholder="Movie description" rows="7" style="resize: both; min-width: 500px;"></textarea></div>
+        <div><input type="checkbox" value="true" asp-for="Movie.Seen" /> Mark as seen</div>
+        <div><input type="text" asp-for="Movie.ImagePath" hidden></div>
+        <input type="submit" value="Insert" class="btn btn-outline-primary">
+    </form>
+}

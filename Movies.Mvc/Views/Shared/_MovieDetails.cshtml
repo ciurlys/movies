@@ -1,0 +1,17 @@
+@model Movies.EntityModels.Movie
+
+
+<div class="movie-details">
+    <h1>@Model.Title</h1>
+    <p><strong>Director:</strong> @Model.Director</p>
+    <p><strong>Release Date:</strong> @Model.ReleaseDate.Year</p>
+    <p><strong>Description:</strong> @Model.Description</p>
+    @if (!string.IsNullOrWhiteSpace(Model.ImagePath))
+    {
+        <img src="~/covers/@Model.ImagePath" alt="@Model.Title cover" style="max-width: 100px;" />
+    }
+    else
+    {
+        <img src="~/covers/missing.jpg" alt="no cover" style="max-width: 100px;" />
+    }
+</div>

@@ -17,8 +17,16 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();  //Database for stor
 builder.Services.AddMoviesDataContext(); //Database for storing Movies
 
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
+
+builder.Services.AddHttpClient();
 builder.Services.AddControllersWithViews();
+
+
+builder.Services.AddDistributedMemoryCache(); //Needed for sessions
+builder.Services.AddSession();
+
 
 builder.Services.Configure<IdentityOptions>(options =>{
     options.SignIn.RequireConfirmedAccount = false;
@@ -42,6 +50,7 @@ app.UseHttpsRedirection();
 app.UseRouting();
 
 app.UseAuthorization();
+app.UseSession();
 
 app.MapStaticAssets();
 
