@@ -1,0 +1,34 @@
+@using Movies.Chat.Models
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<IdentityUser> UserManager
+@{
+  ViewData["Title"] = "Chat";
+}
+<div class="container">
+  <h1>@ViewData["Title"]</h1>
+  <hr />
+  <div class="row">
+   <div class="col">
+      <h2>Send Message</h2>
+      <div class="mb-3">
+        <input type="text" class="form-control" id="from" value="@User.Identity?.Name" hidden/>
+      </div>
+     <div class="mb-3">
+        <label for="message" class="form-label">Message</label>
+        <input type="text" class="form-control" id="message" />
+      </div>
+      <div class="mb-3">
+        <input type="button" class="form-control" id="sendButton" value="Send Message" />
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <hr />
+      <h2>Messages received</h2>
+      <ul id="messages"></ul>
+    </div>
+  </div>
+</div>
+<script src="~/js/signalr/dist/browser/signalr.js"></script>
+<script src="~/js/chat.js"></script>

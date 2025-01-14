@@ -6,6 +6,7 @@ using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.General;
 using Movies.Mvc.Data;
 using Movies.EntityModels;
 using System.Globalization;
+using Movies.SignalR.Service.Hubs;
 
 var defaultCulture = new CultureInfo("en-GB");
 CultureInfo.DefaultThreadCurrentCulture = defaultCulture;
@@ -23,6 +24,7 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
 builder.Services.AddHttpClient();
 builder.Services.AddControllersWithViews();
 
+builder.Services.AddSignalR();
 
 builder.Services.AddDistributedMemoryCache(); //Needed for sessions
 builder.Services.AddSession();
@@ -53,6 +55,8 @@ app.UseAuthorization();
 app.UseSession();
 
 app.MapStaticAssets();
+
+app.MapHub<ChatHub>("/chat");
 
 app.MapControllerRoute(
     name: "default",

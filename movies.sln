@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Movies.Mvc", "Movies.Mvc\Mo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Movies.DataContext", "Movies.DataContext\Movies.DataContext.csproj", "{5163F158-7BF9-450E-B8A2-70B9A9A1083C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Movies.Common", "Movies.Common\Movies.Common.csproj", "{C07231CF-4F5E-407B-A698-49DCCA185EA1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{5163F158-7BF9-450E-B8A2-70B9A9A1083C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5163F158-7BF9-450E-B8A2-70B9A9A1083C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5163F158-7BF9-450E-B8A2-70B9A9A1083C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C07231CF-4F5E-407B-A698-49DCCA185EA1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C07231CF-4F5E-407B-A698-49DCCA185EA1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C07231CF-4F5E-407B-A698-49DCCA185EA1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C07231CF-4F5E-407B-A698-49DCCA185EA1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
