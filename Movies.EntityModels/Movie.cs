@@ -15,4 +15,6 @@ public class Movie
     public bool Seen { get; set; }
     public string? ImagePath { get; set; }
     public ICollection<Comment>? Comments { get; set; }
+    public int Votes { get; set; } = 0;
+    public bool IsParticipating { get; set; } = false;
 }

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Movies.EntityModels;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Movies.DataContext.Migrations
 {
     [DbContext(typeof(MoviesDataContext))]
-    partial class MoviesDataContextModelSnapshot : ModelSnapshot
+    [Migration("20250117215009_InitialMigration")]
+    partial class InitialMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -67,9 +70,6 @@ namespace Movies.DataContext.Migrations
                     b.Property<string>("ImagePath")
                         .HasColumnType("text");
 
-                    b.Property<bool>("IsParticipating")
-                        .HasColumnType("boolean");
-
                     b.Property<DateOnly>("ReleaseDate")
                         .HasColumnType("date");
 
@@ -80,9 +80,6 @@ namespace Movies.DataContext.Migrations
                         .IsRequired()
                         .HasMaxLength(80)
                         .HasColumnType("character varying(80)");
-
-                    b.Property<int>("Votes")
-                        .HasColumnType("integer");
 
                     b.HasKey("MovieId");
 
@@ -95,11 +92,9 @@ namespace Movies.DataContext.Migrations
                             Description = "A thriller about dreams",
                             Director = "Christopher Nolan",
                             ImagePath = "inception.jpg",
-                            IsParticipating = false,
                             ReleaseDate = new DateOnly(2010, 7, 16),
                             Seen = true,
-                            Title = "Inception",
-                            Votes = 0
+                            Title = "Inception"
                         },
                         new
                         {
@@ -107,11 +102,9 @@ namespace Movies.DataContext.Migrations
                             Description = "You know what it is",
                             Director = "The Wachowskis",
                             ImagePath = "matrix.jpg",
-                            IsParticipating = false,
                             ReleaseDate = new DateOnly(1999, 3, 31),
                             Seen = true,
-                            Title = "The Matrix",
-                            Votes = 0
+                            Title = "The Matrix"
                         });
                 });
 
