@@ -115,6 +115,56 @@ namespace Movies.DataContext.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Movies.EntityModels.UserVoteDate", b =>
+                {
+                    b.Property<int>("UserVoteDateId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("UserVoteDateId"));
+
+                    b.Property<int>("DateId")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("HasVoted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int?>("VoteDateId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("UserVoteDateId");
+
+                    b.HasIndex("VoteDateId");
+
+                    b.HasIndex("UserId", "DateId")
+                        .IsUnique();
+
+                    b.ToTable("UserVotesDate");
+                });
+
+            modelBuilder.Entity("Movies.EntityModels.VoteDate", b =>
+                {
+                    b.Property<int>("VoteDateId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("VoteDateId"));
+
+                    b.Property<DateTime>("ProposedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Votes")
+                        .HasColumnType("integer");
+
+                    b.HasKey("VoteDateId");
+
+                    b.ToTable("Dates");
+                });
+
             modelBuilder.Entity("Movies.EntityModels.Comment", b =>
                 {
                     b.HasOne("Movies.EntityModels.Movie", null)
@@ -124,9 +174,21 @@ namespace Movies.DataContext.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Movies.EntityModels.UserVoteDate", b =>
+                {
+                    b.HasOne("Movies.EntityModels.VoteDate", null)
+                        .WithMany("UserVotes")
+                        .HasForeignKey("VoteDateId");
+                });
+
             modelBuilder.Entity("Movies.EntityModels.Movie", b =>
                 {
                     b.Navigation("Comments");
+                });
+
+            modelBuilder.Entity("Movies.EntityModels.VoteDate", b =>
+                {
+                    b.Navigation("UserVotes");
                 });
 #pragma warning restore 612, 618
         }

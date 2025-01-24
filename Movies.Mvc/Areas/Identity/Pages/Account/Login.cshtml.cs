@@ -14,6 +14,8 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace Movies.Mvc.Areas.Identity.Pages.Account
 {
@@ -21,10 +23,12 @@ namespace Movies.Mvc.Areas.Identity.Pages.Account
     public class LoginModel : PageModel
     {
         private readonly SignInManager<IdentityUser> _signInManager;
+	private readonly UserManager<IdentityUser> _userManager;
         private readonly ILogger<LoginModel> _logger;
 
-        public LoginModel(SignInManager<IdentityUser> signInManager, ILogger<LoginModel> logger)
+        public LoginModel(SignInManager<IdentityUser> signInManager, UserManager<IdentityUser> userManager, ILogger<LoginModel> logger)
         {
+	    _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
         }
@@ -118,7 +122,7 @@ namespace Movies.Mvc.Areas.Identity.Pages.Account
                 var result = await _signInManager.PasswordSignInAsync(Input.UserName, Input.Password, Input.RememberMe, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
-                    _logger.LogInformation("User logged in.");
+                    _logger.LogInformation("User logged in.");		    
                     return RedirectToAction("Movies", "Home");
                 }
                 if (result.RequiresTwoFactor)

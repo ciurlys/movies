@@ -7,8 +7,10 @@ using Movies.Mvc.Data;
 using Movies.EntityModels;
 using System.Globalization;
 using Movies.SignalR.Service.Hubs;
+using Microsoft.AspNetCore.DataProtection;
 
-var defaultCulture = new CultureInfo("en-GB");
+
+var defaultCulture = new CultureInfo("en-US");
 CultureInfo.DefaultThreadCurrentCulture = defaultCulture;
 CultureInfo.DefaultThreadCurrentUICulture = defaultCulture;
 
@@ -36,6 +38,18 @@ builder.Services.Configure<IdentityOptions>(options =>{
     options.User.RequireUniqueEmail = false;
 });
 
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.Cookie.Name = ".SharedAuthCookie";
+    options.Cookie.Domain = "localhost"; 
+});
+
+
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo("/var/shared-keys"))
+    .SetApplicationName("SharedAuth");
+
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -51,12 +65,14 @@ else
 //app.UseHttpsRedirection();
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 app.UseSession();
 
 app.MapStaticAssets();
 
 app.MapHub<ChatHub>("/chat");
+
 
 app.MapControllerRoute(
     name: "default",

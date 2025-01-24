@@ -13,7 +13,8 @@ public partial class MoviesDataContext : DbContext
     
     public DbSet<Movie> Movies { get; set; }
     public DbSet<Comment> Comments { get; set; }
-
+    public DbSet<VoteDate> Dates { get; set; }
+    public DbSet<UserVoteDate> UserVotesDate { get; set; }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         if (!optionsBuilder.IsConfigured)
@@ -51,6 +52,11 @@ public partial class MoviesDataContext : DbContext
                 ImagePath = "matrix.jpg"
             }
         );
+
+	modelBuilder.Entity<UserVoteDate>()
+	    .HasIndex(uvd => new { uvd.UserId, uvd.DateId })
+	    .IsUnique();
+	
         base.OnModelCreating(modelBuilder);
     }
 

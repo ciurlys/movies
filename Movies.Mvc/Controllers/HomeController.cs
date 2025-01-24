@@ -53,6 +53,7 @@ public class HomeController : Controller
     public IActionResult Movies(string? title, string? onlySeen, int? page)
     {
 
+
         if (!string.IsNullOrEmpty(onlySeen))
         {
             HttpContext.Session.SetString("onlySeen", onlySeen);

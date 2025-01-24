@@ -1,0 +1,62 @@
+@page "/add-date"
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Authorization
+@rendermode InteractiveServer
+@inject MoviesDataContext db;
+
+@attribute [Authorize]
+
+
+<EditForm OnValidSubmit="AddProposedDate" Model="@newDate" FormName="addDate">
+	 <div class="mb-3">
+	      <label for="date" class="form-label">Date:</label>
+	      <InputDate Type="InputDateType.DateTimeLocal" id="date" @bind-Value:format="dd/MM/yyyy HH:mm" @bind-Value="newDate.ProposedDate" class="form-control" />
+	 </div>
+	 <button type="submit">Propose Date</button>
+</EditForm>
+
+<div>DATE: @newDate.ProposedDate </div>
+
+<h3>Proposed dates for the week @startOfWeek.ToString("dd") - @endOfWeek.ToString("dd")</h3>
+<div>
+	@if (Dates is not null)
+	{
+		@foreach(var d in Dates)
+		{
+			<div>@d.ProposedDate Votes: @d.Votes </div>
+		}
+	}
+	else
+	{
+		<div>No dates proposed.</div>
+	}
+</div>
+
+@code{
+	private VoteDate newDate = new();
+	private DateTime inputDate = DateTime.Now;
+
+	private List<VoteDate> Dates = new();
+
+	private async Task AddProposedDate()
+	{
+		if (newDate.ProposedDate > endOfWeek || newDate.ProposedDate < startOfWeek) return;
+
+	        newDate.ProposedDate = newDate.ProposedDate.ToUniversalTime();
+		db.Dates.Add(newDate);
+		await db.SaveChangesAsync();
+		newDate = new();
+		Dates = await db.Dates.ToListAsync();
+		StateHasChanged();
+	}
+
+	protected override async Task OnInitializedAsync()
+	{
+		Dates = await db.Dates.ToListAsync();
+	}
+
+	//TODO: probably move this to a method that starts when the page is loading to avoid the restrictions for field declaration
+	
+	private DateTime startOfWeek = DateTime.Now.AddDays(-(int)DateTime.Now.DayOfWeek + (int)DayOfWeek.Monday).ToUniversalTime();
+	private DateTime endOfWeek = DateTime.Now.AddDays(-(int)DateTime.Now.DayOfWeek + (int)DayOfWeek.Monday).AddDays(6).ToUniversalTime();
+}
