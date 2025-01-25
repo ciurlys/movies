@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Movies.EntityModels;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Movies.DataContext.Migrations
 {
     [DbContext(typeof(MoviesDataContext))]
-    partial class MoviesDataContextModelSnapshot : ModelSnapshot
+    [Migration("20250124195513_AddUnreadComments")]
+    partial class AddUnreadComments
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -117,8 +120,8 @@ namespace Movies.DataContext.Migrations
 
             modelBuilder.Entity("Movies.EntityModels.UserCommentRead", b =>
                 {
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
 
                     b.Property<int>("CommentId")
                         .HasColumnType("integer");

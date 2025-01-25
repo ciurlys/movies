@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Movies.EntityModels;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Movies.DataContext.Migrations
 {
     [DbContext(typeof(MoviesDataContext))]
-    partial class MoviesDataContextModelSnapshot : ModelSnapshot
+    [Migration("20250124174345_AddMovieVotes")]
+    partial class AddMovieVotes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -113,22 +116,6 @@ namespace Movies.DataContext.Migrations
                             Title = "The Matrix",
                             Votes = 0
                         });
-                });
-
-            modelBuilder.Entity("Movies.EntityModels.UserCommentRead", b =>
-                {
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
-
-                    b.Property<int>("CommentId")
-                        .HasColumnType("integer");
-
-                    b.Property<bool>("Seen")
-                        .HasColumnType("boolean");
-
-                    b.HasKey("UserId", "CommentId");
-
-                    b.ToTable("UserCommentReads");
                 });
 
             modelBuilder.Entity("Movies.EntityModels.UserVoteDate", b =>

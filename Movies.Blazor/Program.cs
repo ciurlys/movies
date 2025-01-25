@@ -7,6 +7,7 @@ using Movies.Blazor.Data;
 using Microsoft.AspNetCore.DataProtection;
 using Movies.EntityModels;
 using Movies.Mvc.Data;
+using Movies.SignalR.Service.Hubs;
 using Microsoft.AspNetCore.Authentication.Cookies;
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,7 +40,7 @@ builder.Services.AddAuthentication(options =>
         };
     })
     .AddCookie(IdentityConstants.ExternalScheme);
-
+builder.Services.AddSignalR();
 builder.Services.AddDataProtection()
     .PersistKeysToFileSystem(new DirectoryInfo("/var/shared-keys"))
     .SetApplicationName("SharedAuth");
@@ -77,9 +78,9 @@ else
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
-
+app.MapHub<VoteHub>("/voteHub");
 app.UseAntiforgery();
 
 app.MapStaticAssets();

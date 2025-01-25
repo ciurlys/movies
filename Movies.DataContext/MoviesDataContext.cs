@@ -15,6 +15,9 @@ public partial class MoviesDataContext : DbContext
     public DbSet<Comment> Comments { get; set; }
     public DbSet<VoteDate> Dates { get; set; }
     public DbSet<UserVoteDate> UserVotesDate { get; set; }
+    public DbSet<UserVoteMovie> UserVotesMovie { get; set; }
+    public DbSet<UserCommentRead> UserCommentReads { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         if (!optionsBuilder.IsConfigured)
@@ -56,6 +59,12 @@ public partial class MoviesDataContext : DbContext
 	modelBuilder.Entity<UserVoteDate>()
 	    .HasIndex(uvd => new { uvd.UserId, uvd.DateId })
 	    .IsUnique();
+	modelBuilder.Entity<UserVoteMovie>()
+	    .HasIndex(uvm => new { uvm.UserId, uvm.MovieId })
+	    .IsUnique();
+
+	modelBuilder.Entity<UserCommentRead>()
+	    .HasKey(ucr => new { ucr.UserId, ucr.CommentId });
 	
         base.OnModelCreating(modelBuilder);
     }

@@ -1,14 +1,14 @@
 @using Movies.EntityModels
 @using Microsoft.AspNetCore.Identity
-@model IEnumerable<Comment>
+@model Movie
 @inject UserManager<IdentityUser> UserManager
 
-<h2>Comments</h2>
-@if (Model.Any())
+<h2 class="comments-header" data-movie-id="@Model.MovieId">Comments</h2>
+@if (Model.Comments.Any())
 {
-    @foreach (Comment comment in Model)
+    @foreach (Comment comment in Model.Comments)
     {
-        <div>
+        <div class="comment" data-comment-id="@comment.CommentId">
             <h3>@comment.Title by @((await UserManager.FindByIdAsync(comment.UserId))?.UserName)</h3>
             <p>@comment.Description</p>
         </div>
@@ -69,4 +69,29 @@ else
             .catch(error => console.error('Error:', error));
         }
     });
+</script>
+
+@* JAVASCRIPT FOR MARKING UNREAD COMMENTS *@
+<script defer>
+const movieId = document.querySelector('.comments-header').getAttribute('data-movie-id');
+
+const comments = document.querySelectorAll('.comment');
+
+comments.forEach(function(comment) {
+    console.log(comment.getAttribute('data-comment-id'));
+    fetch(`/Comment/IsCommentSeen?commentId=${comment.getAttribute('data-comment-id')}`)
+        .then(response => response.json())
+        // Returns 1 if not seen, else 0
+        .then(IsSeen => {
+            if (IsSeen > 0) {
+                comment.style.color = "red";
+            }
+        });
+});
+
+     fetch(`/Comment/MarkCommentsAsRead?movieId=${movieId}`)
+	.then(response => response.json())
+	.then(readCount => {
+			console.info(`${readCount} entries marked as read.`);
+	});
 </script>

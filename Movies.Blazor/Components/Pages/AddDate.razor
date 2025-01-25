@@ -1,8 +1,13 @@
 @page "/add-date"
 @using Microsoft.EntityFrameworkCore
 @using Microsoft.AspNetCore.Authorization
+@using Movies.SignalR.Service.Hubs
 @rendermode InteractiveServer
 @inject MoviesDataContext db;
+@inject NavigationManager NavigationManager
+@inject IHubContext<VoteHub> VoteHubContext
+@using Microsoft.AspNetCore.SignalR;
+@using Microsoft.AspNetCore.SignalR.Client;
 
 @attribute [Authorize]
 
@@ -23,7 +28,7 @@
 	{
 		@foreach(var d in Dates)
 		{
-			<div>@d.ProposedDate Votes: @d.Votes </div>
+			<DateBlock ProposedDate="@d" />
 		}
 	}
 	else
@@ -33,6 +38,7 @@
 </div>
 
 @code{
+	 private HubConnection hubConnection;
 	private VoteDate newDate = new();
 	private DateTime inputDate = DateTime.Now;
 
@@ -46,14 +52,54 @@
 		db.Dates.Add(newDate);
 		await db.SaveChangesAsync();
 		newDate = new();
-		Dates = await db.Dates.ToListAsync();
+		Dates = await db.Dates.OrderBy(d => d.ProposedDate).ToListAsync();
 		StateHasChanged();
 	}
 
 	protected override async Task OnInitializedAsync()
 	{
-		Dates = await db.Dates.ToListAsync();
+        try
+        {
+         hubConnection = new HubConnectionBuilder()
+    .WithUrl(NavigationManager.ToAbsoluteUri("/voteHub"), options =>
+    {
+        options.Transports = Microsoft.AspNetCore.Http.Connections.HttpTransportType.WebSockets;
+    }).ConfigureLogging(logging =>
+    {
+        logging.AddConsole();
+        logging.SetMinimumLevel(LogLevel.Debug);
+    })
+    .Build();
+            // Add handler for incoming messages
+            hubConnection.On<int, int>("ReceiveVoteUpdate", (voteDateId, newVoteCount) =>
+            {
+                var date = Dates.FirstOrDefault(d => d.VoteDateId == voteDateId);
+                if (date != null)
+                {
+                    date.Votes = newVoteCount;
+                    StateHasChanged();
+                }
+            });
+
+            // Start the connection
+            await hubConnection.StartAsync();
+            Console.WriteLine("SignalR connection established.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error establishing SignalR connection: {ex.Message}");
+        }
+	
+		Dates = await db.Dates.OrderBy(d => d.ProposedDate).ToListAsync();
 	}
+
+	    public async ValueTask DisposeAsync()
+    {
+        if (hubConnection != null)
+        {
+            await hubConnection.DisposeAsync();
+        }
+    }
 
 	//TODO: probably move this to a method that starts when the page is loading to avoid the restrictions for field declaration
 	

@@ -18,3 +18,12 @@ public class Movie
     public int Votes { get; set; } = 0;
     public bool IsParticipating { get; set; } = false;
 }
+public class UserVoteMovie
+{
+    [Key]
+    public int UserVoteMovieId { get; set; }
+    public string UserId { get; set; }
+    public int MovieId { get; set; }
+    public bool HasVoted { get; set; }
+}
+

@@ -70,7 +70,7 @@
                         <td>@movie.Description</td>
                         <td>
                         
-                            <a class="btn btn-success" asp-controller="Comment" asp-action="AddComment" asp-route-id="@movie.MovieId">Comment</a>
+                            <a class="btn btn-success" data-bs-toggle="comment" data-id="@movie.MovieId" asp-controller="Comment" asp-action="AddComment" asp-route-id="@movie.MovieId">Comment</a>
                         @if (await UserManager.IsInRoleAsync(await UserManager.FindByNameAsync(User.Identity.Name), "Administrators")){
                             <a class="btn btn-primary" asp-controller="Home" asp-action="EditMovie" asp-route-id="@movie.MovieId">Edit</a>
                             <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="@movie.MovieId">Delete</button>
@@ -140,3 +140,4 @@
         }
     });
 </script>
+<script src="~/js/comments.js" defer></script>
