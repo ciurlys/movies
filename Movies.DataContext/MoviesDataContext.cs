@@ -17,7 +17,8 @@ public partial class MoviesDataContext : DbContext
     public DbSet<UserVoteDate> UserVotesDate { get; set; }
     public DbSet<UserVoteMovie> UserVotesMovie { get; set; }
     public DbSet<UserCommentRead> UserCommentReads { get; set; }
-
+    public DbSet<ChatMessage> ChatMessages { get; set; }
+    
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         if (!optionsBuilder.IsConfigured)
