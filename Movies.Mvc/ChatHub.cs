@@ -28,6 +28,7 @@ public class ChatHub : Hub
 
 	_db.ChatMessages.Add(chatMessage);
 	await _db.SaveChangesAsync();
+
         IClientProxy proxy;
         proxy = Clients.All;
         await proxy.SendAsync("ReceiveMessage", message);

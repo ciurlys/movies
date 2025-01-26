@@ -1,0 +1,64 @@
+@using Movies.EntityModels
+@model List<VoteDate>
+
+<div>
+
+	<h1>Dates</h1>
+	@if (Model is not null)
+	{
+	 @foreach (var date in Model)
+	 {
+		<div data-date-id="@date.VoteDateId">
+
+		<span>@date.ProposedDate has</span>
+		<span class="vote-count">@date.Votes votes.</span>
+
+		<button class="vote-button" data-date-id="@date.VoteDateId">Vote</button>
+
+		</div>
+	
+	 }
+	}
+	else
+	{
+		<div> We have no dates </div>
+	}
+
+
+
+</div>
+
+@section Scripts {
+    <script src="~/lib/signalr/signalr.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const connection = new signalR.HubConnectionBuilder()
+                .withUrl("/voteDateHub")
+                .withAutomaticReconnect()
+                .build();
+
+            connection.on("ReceiveVoteUpdate", function(updatedVotes) {
+                const voteElement = document.querySelector(`[data-date-id="${vote.DateId}"] .vote-count`);
+                if (voteElement) {
+                    voteElement.textContent = updatedVotes;
+                }
+            });
+
+            document.querySelectorAll('.vote-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    const dateId = this.dataset.dateId;
+                    
+                    connection.invoke("SendVote", { 
+                        DateId: dateId, 
+                        Vote: true
+                    }).catch(err => {
+                        console.error(err);
+                    });
+                });
+            });
+            connection.start()
+                .then(() => console.log("SignalR Connected"))
+                .catch(err => console.error(err));
+        });
+    </script>
+}

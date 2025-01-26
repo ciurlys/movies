@@ -26,29 +26,20 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
 builder.Services.AddHttpClient();
 builder.Services.AddControllersWithViews();
 
-builder.Services.AddSignalR();
-
+builder.Services.AddSignalR(options => 
+{
+    options.EnableDetailedErrors = true;
+});
 builder.Services.AddDistributedMemoryCache(); //Needed for sessions
 builder.Services.AddSession();
 
+builder.Services.AddAuthorization();
 
 builder.Services.Configure<IdentityOptions>(options =>{
     options.SignIn.RequireConfirmedAccount = false;
     options.SignIn.RequireConfirmedEmail = false;
     options.User.RequireUniqueEmail = false;
 });
-
-builder.Services.ConfigureApplicationCookie(options =>
-{
-    options.Cookie.Name = ".SharedAuthCookie";
-    options.Cookie.Domain = "localhost"; 
-});
-
-
-builder.Services.AddDataProtection()
-    .PersistKeysToFileSystem(new DirectoryInfo("/var/shared-keys"))
-    .SetApplicationName("SharedAuth");
-
 
 var app = builder.Build();
 
@@ -71,8 +62,12 @@ app.UseSession();
 
 app.MapStaticAssets();
 
-app.MapHub<ChatHub>("/chat");
 
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapHub<ChatHub>("/chat");
+    endpoints.MapHub<VoteDateHub>("/voteDateHub");
+});
 
 app.MapControllerRoute(
     name: "default",

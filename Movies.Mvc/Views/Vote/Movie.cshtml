@@ -1,0 +1,120 @@
+@using Movies.Chat.Models
+@using Microsoft.AspNetCore.Identity
+@using Movies.EntityModels
+@inject UserManager<IdentityUser> UserManager
+
+
+
+<h1> Here we vote </h1>
+
+
+<div>
+
+	<h1>Dates</h1>
+	@if (Model is not null)
+	{
+	<ul class="date-list">
+	 @foreach (var date in Model.Dates)
+	 {
+<li data-day="@date.ProposedDate.Day" data-votes="@date.Votes" class="concrete-date" data-date-dateid="@date.VoteDateId">
+
+		<span>@date.ProposedDate has</span>
+		<span class="vote-count">@date.Votes votes.</span>
+
+		<button class="vote-button" data-date-id="@date.VoteDateId">Vote</button>
+
+		</li>
+	
+	 }
+	</ul>
+	}
+	else
+	{
+		<div> We have no dates </div>
+	}
+
+
+
+</div>
+
+@section Scripts {
+    <script src="~/js/signalr/dist/browser/signalr.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const connection = new signalR.HubConnectionBuilder()
+                .withUrl("/voteDateHub")
+                .withAutomaticReconnect()
+                .build();
+
+            connection.on("ReceiveVoteUpdate", function(updatedVotes) {
+	    var voteElement = document
+		      .querySelector(`[data-date-dateid="${updatedVotes.dateId}"] .vote-count`);
+		 
+		      		
+		  var listElement = document.querySelector(`.concrete-date[data-date-dateid="${updatedVotes.dateId}"`);
+		  listElement.dataset.votes = updatedVotes.votes;
+		  
+                if (voteElement) {
+
+		   voteElement.textContent = `${updatedVotes.votes} votes.`;
+                }
+		
+  var allVoteElements = Array.from(document.querySelectorAll(".concrete-date"))
+     .sort((aEl, bEl) => {
+     let voteComparison = bEl.dataset.votes - aEl.dataset.votes;
+
+     if (voteComparison == 0)
+     	return aEl.dataset.day - bEl.dataset.day;
+
+    return voteComparison;
+});
+
+     var ul = document.querySelector('.date-list');
+     ul.innerHTML = "";
+     allVoteElements.forEach(el => ul.appendChild(el));
+
+		});
+
+            document.querySelectorAll('.vote-button').forEach(button => {
+	    const dateId = button.dataset.dateId;
+
+	    UpdateVoteState(button, dateId);
+
+	    button.addEventListener('click', function() {
+
+	    button.style.color == "red"
+	    ? button.style.color = "green"
+	    : button.style.color = "red";
+
+
+                    connection.invoke("SendVote", { 
+                        DateId: parseInt(dateId)
+                    }).catch(err => {
+                        console.error(err);
+                    });
+                });
+            });
+            connection.start()
+                .then(() => console.log("SignalR Connected"))
+                .catch(err => console.error(err));
+        });
+
+//Check what button state we should print. 1 - has voted, else - has notes
+	function UpdateVoteState(button, dateId){
+	    fetch(`/Vote/CheckUserVoteDate?votedateid=${dateId}`)
+	    .then(response => response.json())
+	    .then(returnValue => {
+	    		      if (returnValue > 0)
+			      {
+				button.style.color = "red";
+			      }
+			      else
+			      {
+			        button.style.color = "green";
+			      }
+	    })
+	    .catch(console.error("Error encountered trying to fetch vote state"));
+	}
+
+	</script>
+}

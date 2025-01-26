@@ -11,8 +11,7 @@ namespace Movies.Mvc.Controllers;
 public class ChatController : Controller
 {
     private readonly MoviesDataContext _db;
-    private const int LATEST_MESSAGE_COUNT = 15;
-    
+    private const int LATEST_MESSAGE_COUNT = 20;
     public ChatController(MoviesDataContext db)
     {
 	_db = db;
