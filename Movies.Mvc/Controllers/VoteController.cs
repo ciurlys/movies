@@ -26,8 +26,9 @@ public class VoteController : Controller
 	    .ToList();
 
 	var movies = _db.Movies
-	    .OrderBy(m => m.Votes)
-	    .ThenBy(m => m.Title)
+	    .OrderByDescending(m => m.Votes)
+	    .ThenByDescending(m => m.Title)
+	    .Where(m => !m.Seen)
 	    .ToList();
 	
 	var model = new
@@ -54,6 +55,7 @@ public class VoteController : Controller
     }
 
     //Will return 1 on HasVoted == true, else will return 0
+    [HttpGet]
     public async Task<JsonResult> CheckUserVoteMovie(int voteMovieId)
     {
 	using var scopedDb = new MoviesDataContext();

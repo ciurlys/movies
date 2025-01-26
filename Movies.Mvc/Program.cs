@@ -67,6 +67,7 @@ app.UseEndpoints(endpoints =>
 {
     endpoints.MapHub<ChatHub>("/chat");
     endpoints.MapHub<VoteDateHub>("/voteDateHub");
+    endpoints.MapHub<VoteMovieHub>("/voteMovieHub");
 });
 
 app.MapControllerRoute(
