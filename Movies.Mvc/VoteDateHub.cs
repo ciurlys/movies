@@ -18,10 +18,8 @@ public class VoteDateHub : Hub
 	_userManager = userManager;
     }
     
-    public async Task SendVote(VoteModel vote)//Vote is true if vote up, otherwise - false
+    public async Task SendVote(VoteModel vote)
     {
-	Console.WriteLine($"DateId: {vote.DateId}");
-
 	var currentUserId = Context.UserIdentifier;
 	if (currentUserId == null) return;
 	using var transaction = await _db.Database.BeginTransactionAsync();
@@ -76,4 +74,3 @@ public class VoteDateHub : Hub
 	return;
     }
 }
- 

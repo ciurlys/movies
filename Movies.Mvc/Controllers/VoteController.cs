@@ -18,18 +18,18 @@ public class VoteController : Controller
 	_db = db;
     }
 
-    public IActionResult Movie()
+    public async Task<IActionResult> Movie()
     {
-	var dates = _db.Dates
+	var dates = await _db.Dates
 	    .OrderByDescending(d => d.Votes)
 	    .ThenBy(d => d.ProposedDate)
-	    .ToList();
+	    .ToListAsync();
 
-	var movies = _db.Movies
+	var movies = await _db.Movies
 	    .OrderByDescending(m => m.Votes)
-	    .ThenByDescending(m => m.Title)
+	    .ThenBy(m => m.Title)
 	    .Where(m => !m.Seen)
-	    .ToList();
+	    .ToListAsync();
 	
 	var model = new
 	{
@@ -37,6 +37,29 @@ public class VoteController : Controller
 	    Movies = movies
 	};
 	
+	return View(model);
+    }
+    [AllowAnonymous]
+    public async Task<IActionResult> Plan()
+    {
+	var topDate = await _db.Dates
+	    .OrderByDescending(d => d.Votes)
+	    .ThenBy(d => d.ProposedDate)
+	    .FirstOrDefaultAsync();
+	
+	var topMovie = await _db.Movies
+	    .OrderByDescending(m => m.Votes)
+	    .ThenBy(m => m.Title)
+	    .Where(m => !m.Seen)
+	    .FirstOrDefaultAsync();
+
+	var model = new
+	{
+	    Date = topDate.ProposedDate,
+	    MovieTitle = topMovie.Title,
+	    MovieImagePath = topMovie.ImagePath
+	};
+
 	return View(model);
     }
 
