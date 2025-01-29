@@ -36,6 +36,8 @@
     <ProjectReference Include="..\Movies.DataContext\Movies.DataContext.csproj" />
     <ProjectReference Include="..\Movies.Common\Movies.Common.csproj" />
     <ProjectReference Include="..\Movies.Services\Movies.Services.csproj" />
+    <ProjectReference Include="..\Movies.Extensions\Movies.Extensions.csproj" />
+    <ProjectReference Include="..\Movies.Repositories\Movies.Repositories.csproj" />
   </ItemGroup>
 
 </Project>

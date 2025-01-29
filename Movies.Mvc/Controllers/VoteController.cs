@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using Movies.EntityModels;
 using Microsoft.AspNetCore.Identity;
 using Movies.Chat.Models;
+using Microsoft.AspNetCore.RateLimiting;
+
 
 namespace Movies.Mvc.Controllers;
 [Authorize]
@@ -12,7 +14,8 @@ public class VoteController : Controller
 {
     private readonly MoviesDataContext _db;
     private readonly UserManager<IdentityUser> _userManager;
-    public VoteController(MoviesDataContext db, UserManager<IdentityUser> userManager)
+    public VoteController(MoviesDataContext db,
+			  UserManager<IdentityUser> userManager)
     {
 	_userManager = userManager;
 	_db = db;
@@ -39,6 +42,7 @@ public class VoteController : Controller
 	
 	return View(model);
     }
+
     [AllowAnonymous]
     public async Task<IActionResult> Plan()
     {

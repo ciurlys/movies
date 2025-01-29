@@ -4,20 +4,25 @@ namespace Movies.EntityModels;
 
 public class MoviesDataContextLogger
 {
-    public static void WriteLine(string message)
+    private static readonly string logFilePath;
+    
+    static MoviesDataContextLogger()
     {
 	string folder = Path.Combine("..", "Movies.Logs");
-
+	
 	if (!Directory.Exists(folder))
 	    Directory.CreateDirectory(folder);
 
 	string dateTimeStamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
 
-	string path = Path.Combine(folder, $"movieslog-{dateTimeStamp}");
-
-	StreamWriter logFile = File.AppendText(path);
-	logFile.WriteLine(message);
-	logFile.Close();
+	logFilePath = Path.Combine(folder, $"movieslog-{dateTimeStamp}");	
     }
 
+    public static void WriteLine(string message)
+    {
+	using (StreamWriter logFile = File.AppendText(logFilePath))
+	{
+	    logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} - {message}");
+	}
+    }
 }

@@ -15,8 +15,10 @@ public class CommentController : Controller
     private readonly MoviesDataContext _db;
     private readonly UserManager<IdentityUser> _userManager;
     private readonly ILogger<CommentController> _logger;
-    public CommentController(MoviesDataContext db, UserManager<IdentityUser> userManager,
-        ILogger<CommentController> logger){
+    public CommentController(MoviesDataContext db,
+			     UserManager<IdentityUser> userManager,
+			     ILogger<CommentController> logger)
+    {
         _db = db;
 	_userManager = userManager;
 	_logger = logger;
@@ -42,7 +44,7 @@ public class CommentController : Controller
 		return NotFound();
 	    }
 	    
-	    HomeMovieViewModel model = new(0, movieInDb);
+	    HomeMovieViewModel model = new(movieInDb);
 	    return View(model);
 	}
 	catch (Exception ex)
@@ -196,6 +198,7 @@ public class CommentController : Controller
 					    ucr.Seen == false)).CountAsync();
 	return Json(unreadCount);
     }
+
     [HttpGet]
     public async Task<IActionResult> MarkCommentsAsRead(int movieId)
     {

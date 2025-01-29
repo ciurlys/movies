@@ -2,4 +2,8 @@ using Movies.EntityModels;
 
 namespace Movies.Mvc.Models;
 
-public record HomeMoviesViewModel(IEnumerable<Movie>? Movies);
+public class HomeMoviesViewModel
+{
+    public IEnumerable<Movie> Movies { get; set; } = new List<Movie>();
+    public int Count => Movies.Count();
+}

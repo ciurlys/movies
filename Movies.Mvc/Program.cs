@@ -11,6 +11,9 @@ using Microsoft.AspNetCore.DataProtection;
 using Serilog;
 using Serilog.Events;
 using Movies.Services;
+using Movies.Extensions;
+using Movies.Repositories;
+
 
 
 var defaultCulture = new CultureInfo("en-US");
@@ -28,6 +31,8 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
 
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<MovieService>();
+builder.Services.AddScoped<MovieRepository>();
+
 builder.Services.AddControllersWithViews();
 
 builder.Host.UseSerilog((context, services, configuration) => configuration
@@ -36,6 +41,8 @@ builder.Host.UseSerilog((context, services, configuration) => configuration
     .Enrich.FromLogContext()
     .WriteTo.Console()
     .WriteTo.File("../Movies.Logs/Serilog.txt", rollingInterval: RollingInterval.Day));
+
+builder.Services.AddRateLimiting();
 
 builder.Services.AddSignalR(options => 
 {
@@ -64,6 +71,8 @@ else
     app.UseHsts();
 }
 
+
+app.UseRateLimiter();
 //app.UseHttpsRedirection();
 app.UseRouting();
 

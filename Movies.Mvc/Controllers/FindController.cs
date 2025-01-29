@@ -5,8 +5,9 @@ using Microsoft.EntityFrameworkCore;
 using Movies.EntityModels;
 using Microsoft.AspNetCore.Identity;
 using Movies.Services;
-
+using Movies.Repositories;
 namespace Movies.Mvc.Controllers;
+
 [Authorize]
 [Route("Find")]
 public class FindController : Controller
@@ -14,14 +15,16 @@ public class FindController : Controller
     private readonly MoviesDataContext _db;
     private readonly ILogger<FindController> _logger;
     private readonly MovieService _movieService;
-    private readonly IWebHostEnvironment _webHostEnvironment;
-    public FindController(MoviesDataContext db, ILogger<FindController> logger,
-	 MovieService movieService, IWebHostEnvironment webHostEnvironment)
+    private readonly MovieRepository _movieRepository;
+    public FindController(MoviesDataContext db,
+			  ILogger<FindController> logger,
+			  MovieService movieService,
+			  MovieRepository movieRepository)
     {
 	_db = db;
 	_logger = logger;
 	_movieService = movieService;
-	_webHostEnvironment = webHostEnvironment;
+	_movieRepository = movieRepository;
     }
     
     //POST: /find/{title}
@@ -47,7 +50,7 @@ public class FindController : Controller
 	    
 	    _logger.LogInformation("Successfully found movie - Title: {Title}", title);
 	    
-            HomeMovieViewModel model = new(0, movie);
+            HomeMovieViewModel model = new(movie);
 
             return View(model);
         }
@@ -67,22 +70,24 @@ public class FindController : Controller
 
         if (ModelState.IsValid)
         {
-            string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "covers");
-            string uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(movie.ImagePath);
-
             HttpClient client = new();
-            var imageBytes = await client.GetByteArrayAsync(movie.ImagePath);
+	    var imageBytes = await client.GetByteArrayAsync(movie.ImagePath);
+	    using var stream = new MemoryStream(imageBytes);
+	    IFormFile ImageFile =
+		new FormFile(baseStream: stream,
+			     baseStreamOffset: 0,
+			     length: imageBytes.Length,
+			     name: "ImagePath",
+			     fileName: Path.GetFileName(movie.ImagePath))
+	    {
+		Headers = new HeaderDictionary(),
+		ContentType = "image/png"
+	    };
 
-            string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-            await System.IO.File.WriteAllBytesAsync(filePath, imageBytes);
-	    
-            movie.ImagePath = uniqueFileName;
-
-            _db.Movies.Add(movie);
-            affected = _db.SaveChanges();
+	    affected = await _movieRepository.AddAsync(movie, ImageFile);
         }
-        HomeMovieViewModel model = new(affected, movie);
+	
+        HomeMovieViewModel model = new(movie);
 
         if (affected == 0)
         {
