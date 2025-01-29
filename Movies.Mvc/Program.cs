@@ -8,6 +8,9 @@ using Movies.EntityModels;
 using System.Globalization;
 using Movies.SignalR.Service.Hubs;
 using Microsoft.AspNetCore.DataProtection;
+using Serilog;
+using Serilog.Events;
+using Movies.Services;
 
 
 var defaultCulture = new CultureInfo("en-US");
@@ -24,7 +27,15 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services.AddHttpClient();
+builder.Services.AddScoped<MovieService>();
 builder.Services.AddControllersWithViews();
+
+builder.Host.UseSerilog((context, services, configuration) => configuration
+    .MinimumLevel.Information()
+    .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+    .Enrich.FromLogContext()
+    .WriteTo.Console()
+    .WriteTo.File("../Movies.Logs/Serilog.txt", rollingInterval: RollingInterval.Day));
 
 builder.Services.AddSignalR(options => 
 {

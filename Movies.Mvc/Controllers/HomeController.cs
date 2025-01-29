@@ -12,7 +12,7 @@ namespace Movies.Mvc.Controllers;
 [Authorize]
 public class HomeController : Controller
 {
-    private int itemsPerPage = 5;
+    private const int ITEMS_PER_PAGE = 5;
     private readonly ILogger<HomeController> _logger;
     private readonly IWebHostEnvironment _webHostEnvironment;
     private readonly IHttpClientFactory _httpClient;
@@ -30,29 +30,9 @@ public class HomeController : Controller
     {
         return View();
     }
-
-
-    public IActionResult MovieDetail(int? id)
-    {
-        if (!id.HasValue)
-        {
-            return BadRequest("You must pass a movie ID in the route, for example, /Home/MovieDetail/2");
-        }
-
-        Movie? model = _db.Movies.SingleOrDefault(movie => movie.MovieId == id);
-
-        if (model is null)
-        {
-            return NotFound($"MovieId {id} not found.");
-        }
-
-        return View(model);
-    }
-
     //GET: /home/movies/{title:string}{onlySeen:string}
     public IActionResult Movies(string? title, string? onlySeen, int? page)
     {
-
 
         if (!string.IsNullOrEmpty(onlySeen))
         {
@@ -63,12 +43,9 @@ public class HomeController : Controller
             onlySeen = HttpContext.Session.GetString("onlySeen") ?? "f";
         }
 
-
-
         int movieCount;
-        int skipAmount = (page ?? 0) * itemsPerPage;
+        int skipAmount = (page ?? 0) * ITEMS_PER_PAGE;
         ViewData["onlySeen"] = HttpContext.Session.GetString("onlySeen");
-
 
         HomeMoviesViewModel model;
 
@@ -82,7 +59,7 @@ public class HomeController : Controller
                     .OrderBy(m => m.Title)
                     .ThenBy(m => m.ReleaseDate)
                     .Skip(skipAmount)
-                    .Take(itemsPerPage)
+                    .Take(ITEMS_PER_PAGE)
                     .ToList());
 
                 movieCount = _db.Movies
@@ -97,7 +74,7 @@ public class HomeController : Controller
                     .OrderBy(m => m.Title)
                     .ThenBy(m => m.ReleaseDate)
                     .Skip(skipAmount)
-                    .Take(itemsPerPage)
+                    .Take(ITEMS_PER_PAGE)
                     .ToList());
 
                 movieCount = _db.Movies
@@ -114,7 +91,7 @@ public class HomeController : Controller
                     .OrderBy(m => m.Title)
                     .ThenByDescending(m => m.ReleaseDate)
                     .Skip(skipAmount)
-                    .Take(itemsPerPage)
+                    .Take(ITEMS_PER_PAGE)
                     .ToList());
                 movieCount = _db.Movies
                     .Where(m => m.Seen)
@@ -126,13 +103,13 @@ public class HomeController : Controller
                     .OrderBy(m => m.Title)
                     .ThenByDescending(m => m.ReleaseDate)
                     .Skip(skipAmount)
-                    .Take(itemsPerPage)
+                    .Take(ITEMS_PER_PAGE)
                     .ToList());
                 movieCount = _db.Movies
                     .Count();
             }
         }
-        ViewData["PageCount"] = (movieCount + itemsPerPage - 1) / itemsPerPage;
+        ViewData["PageCount"] = (movieCount + ITEMS_PER_PAGE - 1) / ITEMS_PER_PAGE;
         return View(model);
     }
 
@@ -274,103 +251,6 @@ public class HomeController : Controller
         }
     }
 
-    //POST: /home/find/{title}
-    public async Task<IActionResult> Find(string? title)
-    {
-        if (string.IsNullOrWhiteSpace(title))
-        {
-            ViewData["activeQuery"] = false;
-            return View();
-        }
-
-        ViewData["activeQuery"] = true;
-
-        string apiKey = Environment.GetEnvironmentVariable("API_KEY");
-        string apiUrl = $"https://www.omdbapi.com/?t={Uri.EscapeDataString(title)}&apikey={apiKey}";
-
-        try
-        {
-            HttpClient client = new();
-            HttpResponseMessage response = await client.GetAsync(apiUrl);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                return StatusCode((int)response.StatusCode, "Error fetching movie data");
-            }
-            string jsonResponse = await response.Content.ReadAsStringAsync();
-
-            var movieData = JsonSerializer.Deserialize<OmdbApiResponse>(jsonResponse, new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            });
-
-            if (movieData is null || movieData.Response == "false")
-            {
-                return NotFound("Movie not found");
-            }
-
-            var movie = new Movie
-            {
-                Title = movieData.Title,
-                Director = movieData.Director,
-                Description = movieData.Plot,
-                ReleaseDate = new DateOnly(int.Parse(movieData.Year), 1, 1),
-                ImagePath = movieData.Poster
-            };
-
-            HomeMovieViewModel model = new(0, movie);
-
-            return View(model);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"Error: {ex.Message}");
-        }
-    }
-
-    //POST: /home/addfound
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> AddFound(Movie movie)
-    {
-
-        int affected = 0;
-
-        if (ModelState.IsValid)
-        {
-            string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "covers");
-            string uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(movie.ImagePath);
-
-            HttpClient client = new();
-            var imageBytes = await client.GetByteArrayAsync(movie.ImagePath);
-
-            string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-            await System.IO.File.WriteAllBytesAsync(filePath, imageBytes);
-
-            movie.ImagePath = uniqueFileName;
-
-            _db.Movies.Add(movie);
-            affected = _db.SaveChanges();
-        }
-        HomeMovieViewModel model = new(affected, movie);
-
-        if (affected == 0)
-        {
-            return StatusCode(500, "Error encountered");
-        }
-        else
-        {
-            return RedirectToAction("Movies");
-        }
-    }
-
-    public IActionResult Chat()
-    {
-        return View();
-    }
-
-
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {
@@ -379,12 +259,3 @@ public class HomeController : Controller
 
 }
 
-public class OmdbApiResponse
-{
-    public string Title { get; set; }
-    public string Director { get; set; }
-    public string Plot { get; set; }
-    public string Year { get; set; }
-    public string Poster { get; set; }
-    public string Response { get; set; }
-}

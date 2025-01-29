@@ -12,65 +12,95 @@ namespace Movies.Mvc.Controllers;
 [Authorize]
 public class CommentController : Controller
 {
-
     private readonly MoviesDataContext _db;
     private readonly UserManager<IdentityUser> _userManager;
-       public CommentController(MoviesDataContext db, UserManager<IdentityUser> userManager){
+    private readonly ILogger<CommentController> _logger;
+    public CommentController(MoviesDataContext db, UserManager<IdentityUser> userManager,
+        ILogger<CommentController> logger){
         _db = db;
 	_userManager = userManager;
+	_logger = logger;
     }
 
     //GET /comment/addcomment/{id}
     [HttpGet]
     public async Task<IActionResult> AddComment(int? id)
     {
-        if (id is null)
+        if (id is null || id <= 0)
         {
             return NotFound();
         }
-        Movie? movieInDb = await _db.Movies
-            .Include(m => m.Comments)
-            .FirstOrDefaultAsync(m => m.MovieId == id);
+	try
+	{
+	    Movie? movieInDb = await _db.Movies
+		.Include(m => m.Comments)
+		.FirstOrDefaultAsync(m => m.MovieId == id);
+	
+	    if (movieInDb is null)
+	    {
+		_logger.LogWarning("Failed to find movie - Movie Id: {Id}", id);
+		return NotFound();
+	    }
+	    
+	    HomeMovieViewModel model = new(0, movieInDb);
+	    return View(model);
+	}
+	catch (Exception ex)
+	{
+	    _logger.LogError(ex, "Error searching for movie - Movie Id: {Id}", id);
+            return StatusCode(500, "Internal server error");
+	}
+     }
 
-       if (movieInDb is null)
-       {
-            return NotFound();
-       }
-        HomeMovieViewModel model = new(0, movieInDb);
-        return View(model);
-    }
+
     [HttpDelete]
     public async Task<IActionResult> DeleteComment(int? id)
     {
-        if (id is null)
+        if (id is null || id <= 0)
         {
             return NotFound();
         }
-        Comment comment = _db.Comments.Find(id);
-
-        if (comment is null)
-        {
-            return NotFound("Could not find the comment by id");
-        }
-
-        _db.Comments.Remove(comment);
-        await _db.SaveChangesAsync();
-
-        return NoContent();
+	try
+	{
+	    Comment comment = _db.Comments.Find(id);
+	    
+	    if (comment is null)
+	    {
+		_logger.LogWarning("Failed to find comment - Comment Id: {Id}", id);			      return NotFound("Could not find the comment by id");
+	    }
+	    
+	    _db.Comments.Remove(comment);
+	    await _db.SaveChangesAsync();
+	    
+	    return NoContent();
+	}
+       	catch (Exception ex)
+	{
+	    _logger.LogError(ex, "Error searching for comment - Comment Id: {Id}", id);
+            return StatusCode(500, "Internal server error");
+	}
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> AddComment(int movieId, string userId, string title, string description)
     {
-        Movie? movie = await _db.Movies.FindAsync(movieId);
+	try
+	{
+	    Movie? movie = await _db.Movies.FindAsync(movieId);
 
-        if (movie is null)
-        {
-            return NotFound();
-        }
-
-
+	    if (movie is null)
+	    {
+		_logger.LogWarning("Failed to find movie - Movie Id: {Id}", movieId);
+		return NotFound("Failed to find movie id");
+	    }
+	}
+	catch (Exception ex)
+	{
+	    _logger.LogError(ex, "Error searching for movie - Movie Id: {Id}", movieId);
+	    return StatusCode(500, "Internal server error");
+	}
+	
         Comment comment = new()
         {
             MovieId = movieId,
@@ -82,6 +112,7 @@ public class CommentController : Controller
         _db.Comments.Add(comment);
         await _db.SaveChangesAsync();
 	
+
 	//Now we inform all users that a new comment has been made
 	var userIds = await GetAllUserIds();
 
@@ -99,76 +130,6 @@ public class CommentController : Controller
 	    
         return RedirectToAction("AddComment", new { id = movieId });
     }
-
-    //TODO: MOVE THIS SOMEWHERE ELSE
-
-    
-    public async Task<List<string>> GetAllUserIds()
-    {
-	return await _userManager.Users
-	    .Select(u => u.Id)
-	    .ToListAsync();
-    }
-    [HttpGet]
-    public async Task<IActionResult> GetUnreadCommentsCount(int movieId)
-    {
-	var currentUserId = _userManager.GetUserId(User);
-	var unreadCount = await _db.Comments
-	    .Where(c => c.MovieId == movieId)
-	    .Where(c => c.UserId != currentUserId &&
-		   _db.UserCommentReads.Any(ucr =>
-					     ucr.CommentId == c.CommentId &&
-					     ucr.UserId == currentUserId &&
-					    ucr.Seen == false)).CountAsync();
-	return Json(unreadCount);
-    }
-    [HttpGet]
-    public async Task<IActionResult> MarkCommentsAsRead(int movieId)
-    {
-	var currentUserId = _userManager.GetUserId(User);
-
-	 var unreadCommentIds = await _db.Comments
-	     .Where(c => c.MovieId == movieId && c.UserId != currentUserId)
-	     .Select(c => c.CommentId)
-	     .ToListAsync();
-	 var unreadEntries = await _db.UserCommentReads
-	     .Where(ucr =>
-		    unreadCommentIds.Contains(ucr.CommentId) &&
-		    ucr.UserId == currentUserId &&
-		    ucr.Seen == false)
-	     .ToListAsync();
-
-	 foreach (var entry in unreadEntries)
-	 {
-	     entry.Seen = true;
-	 }
-
-	 await _db.SaveChangesAsync();
-	
-	 return Json(new {Count = unreadEntries.Count});
-    }
-
-
-    [HttpGet]
-    public async Task<IActionResult> IsCommentSeen(int commentId)
-    {
-	var currentUserId = _userManager.GetUserId(User);
-	var commentReadState = await _db.UserCommentReads
-	    .FirstOrDefaultAsync(ucr => ucr.CommentId == commentId &&
-		   ucr.UserId == currentUserId);
-	if (commentReadState is null || commentReadState.Seen)
-	{
-	    return Json(0);
-	}
-	
-	
-	return Json(1);
-    }
-
-
-
-
-    //TODO MOVE THIS TOP STUFF SOMEWHERE ELSE
 
     [HttpGet]
     public async Task<IActionResult> EditComment(int? id)
@@ -214,5 +175,65 @@ public class CommentController : Controller
             return RedirectToAction("AddComment", new {id = comment.MovieId});
         }
     }
+    public async Task<List<string>> GetAllUserIds()
+    {
+	return await _userManager.Users
+	    .Select(u => u.Id)
+	    .ToListAsync();
+    }
+    
+    //These methods help the JavaScript frontend figure out the comment state 
+    [HttpGet]
+    public async Task<IActionResult> GetUnreadCommentsCount(int movieId)
+    {
+	var currentUserId = _userManager.GetUserId(User);
+	var unreadCount = await _db.Comments
+	    .Where(c => c.MovieId == movieId)
+	    .Where(c => c.UserId != currentUserId &&
+		   _db.UserCommentReads.Any(ucr =>
+					     ucr.CommentId == c.CommentId &&
+					     ucr.UserId == currentUserId &&
+					    ucr.Seen == false)).CountAsync();
+	return Json(unreadCount);
+    }
+    [HttpGet]
+    public async Task<IActionResult> MarkCommentsAsRead(int movieId)
+    {
+	var currentUserId = _userManager.GetUserId(User);
 
+	 var unreadCommentIds = await _db.Comments
+	     .Where(c => c.MovieId == movieId && c.UserId != currentUserId)
+	     .Select(c => c.CommentId)
+	     .ToListAsync();
+	 var unreadEntries = await _db.UserCommentReads
+	     .Where(ucr =>
+		    unreadCommentIds.Contains(ucr.CommentId) &&
+		    ucr.UserId == currentUserId &&
+		    ucr.Seen == false)
+	     .ToListAsync();
+
+	 foreach (var entry in unreadEntries)
+	 {
+	     entry.Seen = true;
+	 }
+
+	 await _db.SaveChangesAsync();
+	
+	 return Json(new {Count = unreadEntries.Count});
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> IsCommentSeen(int commentId)
+    {
+	var currentUserId = _userManager.GetUserId(User);
+	var commentReadState = await _db.UserCommentReads
+	    .FirstOrDefaultAsync(ucr => ucr.CommentId == commentId &&
+		   ucr.UserId == currentUserId);
+	if (commentReadState is null || commentReadState.Seen)
+	{
+	    return Json(0);
+	}
+	
+	return Json(1);
+    }
 }

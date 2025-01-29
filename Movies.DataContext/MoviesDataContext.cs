@@ -30,7 +30,8 @@ public partial class MoviesDataContext : DbContext
             builder.Username = Environment.GetEnvironmentVariable("SQL_USR");
             builder.Password = Environment.GetEnvironmentVariable("SQL_PWD");
             optionsBuilder.UseNpgsql(builder.ConnectionString);
-        }
+
+	}
     }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

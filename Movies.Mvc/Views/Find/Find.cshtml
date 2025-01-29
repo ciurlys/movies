@@ -1,6 +1,6 @@
 @model HomeMovieViewModel
 
-    <form method="get" asp-controller="Home" asp-action="Find" >
+    <form method="get" asp-controller="Find" asp-action="Find" >
     <input type="text" name="title"  value="@ViewContext.HttpContext.Request.Query["title"]"/>
     <input type="submit">
     </form>
@@ -18,7 +18,7 @@
     }
     </div>
 
-    <form method="post" enctype="multipart/form-data" asp-controller="Home" asp-action="AddFound">
+    <form method="post" enctype="multipart/form-data" asp-controller="Find" asp-action="AddFound">
         @Html.AntiForgeryToken()
         <div class="add-input"><input hidden asp-for="Movie.Title" placeholder="Movie title">
         <span asp-validation-for="Movie.Title" class="text-danger"></span>

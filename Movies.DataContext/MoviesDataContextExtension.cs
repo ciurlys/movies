@@ -22,7 +22,12 @@ public static class MoviesDataContextExtension
 
         services.AddDbContext<MoviesDataContext>(options =>{
             options.UseNpgsql(connectionString);
-        });
+
+	    options.LogTo(MoviesDataContextLogger.WriteLine, new[]
+	        { Microsoft.EntityFrameworkCore
+		  .Diagnostics.RelationalEventId.CommandExecuting});
+	    
+	});
         return services;
    } 
 }
