@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Hosting;
 
 namespace Movies.Repositories;
 
-public class MovieRepository
+public class MovieRepository : IMovieRepository
 {
     private readonly MoviesDataContext _db;
     private readonly IWebHostEnvironment _webHostEnvironment;

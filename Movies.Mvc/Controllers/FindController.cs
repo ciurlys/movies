@@ -15,11 +15,11 @@ public class FindController : Controller
     private readonly MoviesDataContext _db;
     private readonly ILogger<FindController> _logger;
     private readonly MovieService _movieService;
-    private readonly MovieRepository _movieRepository;
+    private readonly IMovieRepository _movieRepository;
     public FindController(MoviesDataContext db,
 			  ILogger<FindController> logger,
 			  MovieService movieService,
-			  MovieRepository movieRepository)
+			  IMovieRepository movieRepository)
     {
 	_db = db;
 	_logger = logger;

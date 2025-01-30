@@ -17,11 +17,11 @@ public class HomeController : Controller
     private readonly ILogger<HomeController> _logger;
     private readonly IHttpClientFactory _httpClient;
     private readonly MoviesDataContext _db;
-    private readonly MovieRepository _movieRepository;
+    private readonly IMovieRepository _movieRepository;
     public HomeController(ILogger<HomeController> logger,
 			  MoviesDataContext db,
 			  IHttpClientFactory httpClient,
-			  MovieRepository movieRepository)
+			  IMovieRepository movieRepository)
     {
         _httpClient = httpClient;
         _db = db;
@@ -124,7 +124,8 @@ public class HomeController : Controller
     [Authorize(Roles = "Administrators")]
     public IActionResult AddMovie()
     {
-        return View(new Movie());
+	var model = new HomeMovieViewModel(new Movie()); 
+        return View(model);
     }
 
     //POST: /home/addmovie

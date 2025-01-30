@@ -4,19 +4,20 @@ using Movies.Mvc.Models;
 using Microsoft.EntityFrameworkCore;
 using Movies.EntityModels;
 using Microsoft.AspNetCore.Identity;
-using Movies.Chat.Models;
+using Movies.Repositories;
 
 namespace Movies.Mvc.Controllers;
 [Authorize]
 public class ChatController : Controller
 {
-    private readonly MoviesDataContext _db;
     private readonly ILogger<ChatController> _logger;
-    private const int LATEST_MESSAGE_COUNT = 20;
-    public ChatController(MoviesDataContext db, ILogger<ChatController> logger)
+    private readonly IChatRepository _chatRepository;
+    
+    public ChatController(ILogger<ChatController> logger,
+			  IChatRepository chatRepository)
     {
-	_db = db;
 	_logger = logger;
+	_chatRepository = chatRepository;
     }
     public IActionResult Index()
     {
@@ -27,15 +28,7 @@ public class ChatController : Controller
     {
 	try
 	{
-	    var messages = await _db.ChatMessages
-		.OrderByDescending(m => m.Id)
-		.Take(LATEST_MESSAGE_COUNT)
-		.Select(m => new MessageModel
-		{
-		    From = m.SenderName,
-		    Message = m.MessageText
-		})
-		.ToListAsync();
+	    var messages = await _chatRepository.GetLatestAsync();
 	
 	    if (messages is null)
 	    {

@@ -1,12 +1,11 @@
 @using Movies.EntityModels
 @using Microsoft.AspNetCore.Identity
-@model Movie
 @inject UserManager<IdentityUser> UserManager
 
-<h2 class="comments-header" data-movie-id="@Model.MovieId">Comments</h2>
-@if (Model.Comments.Any())
+<h2 class="comments-header" data-movie-id="@Model[0].MovieId">Comments</h2>
+@if(Model is not null)
 {
-    @foreach (Comment comment in Model.Comments)
+    @foreach (Comment comment in Model)
     {
         <div class="comment" data-comment-id="@comment.CommentId">
             <h3>@comment.Title by @((await UserManager.FindByIdAsync(comment.UserId))?.UserName)</h3>

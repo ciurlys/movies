@@ -6,6 +6,8 @@ using Movies.Mvc.Data;
 using Movies.Mvc.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Movies.Repositories;
+
 
 namespace Movies.Mvc.Controllers;
 
@@ -13,13 +15,19 @@ namespace Movies.Mvc.Controllers;
 public class CommentController : Controller
 {
     private readonly MoviesDataContext _db;
+    private readonly ICommentRepository _commentRepository;
+    private readonly IMovieRepository _movieRepository;
     private readonly UserManager<IdentityUser> _userManager;
     private readonly ILogger<CommentController> _logger;
-    public CommentController(MoviesDataContext db,
+    public CommentController(ICommentRepository commentRepository,
 			     UserManager<IdentityUser> userManager,
-			     ILogger<CommentController> logger)
+			     ILogger<CommentController> logger,
+			     IMovieRepository movieRepository,
+			     MoviesDataContext db)
     {
-        _db = db;
+	_db = db;
+	_commentRepository = commentRepository;
+	_movieRepository = movieRepository;
 	_userManager = userManager;
 	_logger = logger;
     }
@@ -34,26 +42,28 @@ public class CommentController : Controller
         }
 	try
 	{
-	    Movie? movieInDb = await _db.Movies
-		.Include(m => m.Comments)
-		.FirstOrDefaultAsync(m => m.MovieId == id);
-	
-	    if (movieInDb is null)
+	    List<Comment> comments = await _commentRepository.GetByMovieIdAsync(id);
+
+	    //Move the movie getting elsewhere so the try catch would be more specific
+	    Movie movie = await _movieRepository.GetByIdAsync(id);   
+	    if (comments is null)
 	    {
-		_logger.LogWarning("Failed to find movie - Movie Id: {Id}", id);
+		_logger.LogWarning("Failed to find comments for  movie - Movie Id: {Id}", id);
 		return NotFound();
 	    }
-	    
-	    HomeMovieViewModel model = new(movieInDb);
+	    var model = new {
+		Movie = movie,
+		Comments = comments
+	    };
+
 	    return View(model);
 	}
 	catch (Exception ex)
 	{
-	    _logger.LogError(ex, "Error searching for movie - Movie Id: {Id}", id);
+	    _logger.LogError(ex, "Error searching comments for movie - Movie Id: {Id}", id); 
             return StatusCode(500, "Internal server error");
 	}
      }
-
 
     [HttpDelete]
     public async Task<IActionResult> DeleteComment(int? id)
@@ -64,21 +74,12 @@ public class CommentController : Controller
         }
 	try
 	{
-	    Comment comment = _db.Comments.Find(id);
-	    
-	    if (comment is null)
-	    {
-		_logger.LogWarning("Failed to find comment - Comment Id: {Id}", id);			      return NotFound("Could not find the comment by id");
-	    }
-	    
-	    _db.Comments.Remove(comment);
-	    await _db.SaveChangesAsync();
-	    
+	    await _commentRepository.DeleteAsync(id);
 	    return NoContent();
 	}
        	catch (Exception ex)
 	{
-	    _logger.LogError(ex, "Error searching for comment - Comment Id: {Id}", id);
+	    _logger.LogError(ex, "Error deleting comment - Comment Id: {Id}", id);
             return StatusCode(500, "Internal server error");
 	}
     }
@@ -87,35 +88,12 @@ public class CommentController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> AddComment(int movieId, string userId, string title, string description)
     {
-	try
-	{
-	    Movie? movie = await _db.Movies.FindAsync(movieId);
-
-	    if (movie is null)
-	    {
-		_logger.LogWarning("Failed to find movie - Movie Id: {Id}", movieId);
-		return NotFound("Failed to find movie id");
-	    }
-	}
-	catch (Exception ex)
-	{
-	    _logger.LogError(ex, "Error searching for movie - Movie Id: {Id}", movieId);
-	    return StatusCode(500, "Internal server error");
-	}
-	
-        Comment comment = new()
-        {
-            MovieId = movieId,
-            UserId = userId,
-            Title = title,
-            Description = description
-        };
-
-        _db.Comments.Add(comment);
-        await _db.SaveChangesAsync();
-	
+	// add _commentRepository.AddAsync(paramas)
+	int addedCommentId = await _commentRepository.AddAsync(movieId, userId, title, description);
 
 	//Now we inform all users that a new comment has been made
+
+	//FIX WITH REPOSITORIES
 	var userIds = await GetAllUserIds();
 
 	var filteredUserIds = userIds.Where(id => id != userId).ToList();
@@ -123,7 +101,7 @@ public class CommentController : Controller
 	var unreadEntries = filteredUserIds.Select(userId => new UserCommentRead
 	    {
 		UserId = userId,
-		CommentId = comment.CommentId,
+		CommentId = addedCommentId,
 		Seen = false
             });
 
@@ -141,10 +119,11 @@ public class CommentController : Controller
             return NotFound();
         }
 
-        Comment? commentInDb = _db.Comments.Find(id);
+        Comment? commentInDb = await _commentRepository.GetByIdAsync(id);
 
         if (commentInDb is null)
         {
+	    _logger.LogError("Error searching comments for movie - Movie Id: {Id}", id); 
             return NotFound();
         }
 
@@ -156,16 +135,8 @@ public class CommentController : Controller
         int affected = 0;
         if (ModelState.IsValid)
         {
-            Comment? commentInDb = _db.Comments.Find(comment.CommentId);
-
-            if (commentInDb is not null)
-            {
-                commentInDb.Title = comment.Title;
-                commentInDb.Description = comment.Description;
-
-                affected = await _db.SaveChangesAsync();
-            }
-        }
+	    affected = await _commentRepository.UpdateAsync(comment);
+	}
 
         if (affected == 0)
         {
@@ -177,6 +148,7 @@ public class CommentController : Controller
             return RedirectToAction("AddComment", new {id = comment.MovieId});
         }
     }
+    
     public async Task<List<string>> GetAllUserIds()
     {
 	return await _userManager.Users

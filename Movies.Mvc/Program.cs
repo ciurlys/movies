@@ -31,7 +31,9 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
 
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<MovieService>();
-builder.Services.AddScoped<MovieRepository>();
+builder.Services.AddScoped<IMovieRepository, MovieRepository>();
+builder.Services.AddScoped<IChatRepository, ChatRepository>();
+builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 
 builder.Services.AddControllersWithViews();
 
