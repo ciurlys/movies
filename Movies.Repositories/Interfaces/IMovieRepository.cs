@@ -5,10 +5,10 @@ namespace Movies.Repositories;
 
 public interface IMovieRepository
 {
-    Task<IEnumerable<Movie>> GetByTitleAsync(string? title, string? onlySeen, int? page);
-    Task<IEnumerable<Movie>> GetAllAsync(string? onlySeen, int? page);
+    Task<IEnumerable<Movie>> GetByTitleAsync(string? title, bool? onlySeen, int? page, int movieCount);
+    Task<IEnumerable<Movie>> GetAllAsync(bool? onlySeen, int? page, int movieCount);
     Task<Movie?> GetByIdAsync(int? id);
-    Task<int> CountAsync();
+    Task<int> CountAsync(bool? onlySeen);
     Task<int> UpdateAsync(Movie movie, IFormFile? imageFile);
     Task<int> AddAsync(Movie movie, IFormFile? imageFile);
     Task<int> RemoveAsync(Movie? movie);

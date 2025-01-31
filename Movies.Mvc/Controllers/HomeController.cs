@@ -12,7 +12,7 @@ namespace Movies.Mvc.Controllers;
 [Authorize]
 public class HomeController : Controller
 {
-    private const int ITEMS_PER_PAGE = 5;
+    private const int ITEMS_PER_PAGE = 10;
     private readonly ILogger<HomeController> _logger;
     private readonly IMovieRepository _movieRepository;
     public HomeController(ILogger<HomeController> logger,
@@ -26,29 +26,22 @@ public class HomeController : Controller
     {
         return View();
     }
-    //GET: /home/movies/{title:string}{onlySeen:string}{page:int}
-    public async Task<IActionResult> Movies(string? title, string? onlySeen, int? page)
+    //GET: /home/movies/{title:string}{onlySeen:bool}{page:int}
+    public async Task<IActionResult> Movies(string? title, bool? onlySeen, int? page)
     {
+	onlySeen = onlySeen ?? false;
 
-	if (!string.IsNullOrEmpty(onlySeen))
-	{
-	    HttpContext.Session.SetString("onlySeen", onlySeen);
-	}
-	else
-	{
-	    onlySeen = HttpContext.Session.GetString("onlySeen") ?? "f";
-	}
+	ViewData["onlySeen"] = onlySeen;
 	
-        ViewData["onlySeen"] = HttpContext.Session.GetString("onlySeen");
-
 	HomeMoviesViewModel model = new HomeMoviesViewModel {
 	    Movies =
 	    (!string.IsNullOrWhiteSpace(title)) ?
-	    await _movieRepository.GetByTitleAsync(title, onlySeen, page) :
-	    await _movieRepository.GetAllAsync(onlySeen, page)
+	    await _movieRepository.GetByTitleAsync(title, onlySeen, page, ITEMS_PER_PAGE) :
+	    await _movieRepository.GetAllAsync(onlySeen, page, ITEMS_PER_PAGE)
 	};
-
-        ViewData["PageCount"] = (await _movieRepository.CountAsync() + ITEMS_PER_PAGE - 1) / ITEMS_PER_PAGE;
+	
+	int count = await _movieRepository.CountAsync(onlySeen);
+        ViewData["PageCount"] = (count + ITEMS_PER_PAGE - 1) / ITEMS_PER_PAGE;
         return View(model);
     }
 

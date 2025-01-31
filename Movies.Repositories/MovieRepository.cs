@@ -10,7 +10,6 @@ public class MovieRepository : IMovieRepository
 {
     private readonly MoviesDataContext _db;
     private readonly IWebHostEnvironment _webHostEnvironment;
-    private readonly int ITEMS_PER_PAGE = 5;
     private readonly IImageService _imageService;
     public MovieRepository(MoviesDataContext db,
 			   IWebHostEnvironment webHostEnvironment,
@@ -22,32 +21,35 @@ public class MovieRepository : IMovieRepository
     }
 
     public async Task<IEnumerable<Movie>> GetByTitleAsync(string? title,
-							  string? onlySeen,
-							  int? page)
+							  bool? onlySeen,
+							  int? page,
+							  int movieCount)
     {
 	title = title.ToLower();
-	int skipAmount = (page ?? 0) * ITEMS_PER_PAGE;
+	int skipAmount = (page ?? 0) * movieCount;
 	
 	return await _db.Movies
             .Where(m => m.Title.ToLower().StartsWith(title) &&
-		   (onlySeen == "t" ? m.Seen : true)) 
+		   ((onlySeen ?? false) ? m.Seen : true)) 
             .OrderBy(m => m.Title)
             .ThenBy(m => m.ReleaseDate)
             .Skip(skipAmount)
-            .Take(ITEMS_PER_PAGE)
+            .Take(movieCount)
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<Movie>> GetAllAsync(string? onlySeen, int? page)
+    public async Task<IEnumerable<Movie>> GetAllAsync(bool? onlySeen,
+						      int? page,
+						      int movieCount)
     {
-	int skipAmount = (page ?? 0) * ITEMS_PER_PAGE;
+	int skipAmount = (page ?? 0) * movieCount;
 	
 	return await _db.Movies
-	   .Where(m => (onlySeen == "t" ? m.Seen : true))
+	    .Where(m => ((onlySeen ?? false) ? m.Seen : true))
            .OrderBy(m => m.Title)
            .ThenByDescending(m => m.ReleaseDate)
            .Skip(skipAmount)
-           .Take(ITEMS_PER_PAGE)
+           .Take(movieCount)
 	   .ToListAsync();
     }
 
@@ -74,9 +76,11 @@ public class MovieRepository : IMovieRepository
 	return await _db.SaveChangesAsync();	
     }
 
-    public async Task<int> CountAsync()
+    public async Task<int> CountAsync(bool? onlySeen)
     {
-	return await _db.Movies.CountAsync();
+	return await _db.Movies
+	    .Where(m => ((onlySeen ?? false) ? m.Seen : true))
+	    .CountAsync();
     }
     
     //Returns the int of rows affected

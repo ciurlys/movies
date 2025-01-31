@@ -22,16 +22,15 @@
 
     @* only show seen movies *@
     <form method="get" asp-controller="Home" asp-action="Movies">
-        @if (@ViewContext.HttpContext.Request.Query["onlySeen"] == "t"
-            || @ViewContext.HttpContext.Session.GetString("onlySeen") == "t"){
-            <button type="submit" class="btn btn-primary" name="onlySeen" value="f">
+        @if (ViewData["onlySeen"] != null && (bool)ViewData["onlySeen"] == true){
+            <button type="submit" class="btn btn-primary only-seen" name="onlySeen">
                 Show all movies
             </button>
         }    
         else
         {
 
-            <button type="submit" class="btn btn-primary" name="onlySeen" value="t">
+            <button type="submit" class="btn btn-primary only-seen" name="onlySeen">
                 Show only seen movies
             </button>
         }
@@ -89,7 +88,6 @@
     {
         @* <a href="/Home/Movies/?onlySeen=@ViewData["onlySeen"]&title=@ViewContext.HttpContext.Request.Query["title"]&page=@i">@(i + 1)</a> *@
         <a class="btn btn-light" href="/Home/Movies/?page=@i">@(i + 1)</a>
-    
     }
 </div>
 
@@ -141,3 +139,15 @@
     });
 </script>
 <script src="~/js/comments.js" defer></script>
+<script>
+ var buttons = document.querySelectorAll('.only-seen');
+ buttons.forEach(button => {
+     button.addEventListener('click', e => {
+	 e.preventDefault();
+	 var onlySeen = localStorage.getItem("onlySeen") ?? false;
+	 onlySeen ? onlySeen = false : onlySeen = true;
+	 localStorage.setItem("onlySeen", JSON.stringify(onlySeen));
+	 window.location.href = `/home/movies?onlySeen=${onlySeen}`;
+ });
+ });
+</script>

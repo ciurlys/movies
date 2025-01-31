@@ -11,10 +11,9 @@ using Microsoft.AspNetCore.DataProtection;
 using Serilog;
 using Serilog.Events;
 using Movies.Services;
-using Movies.Extensions;
 using Movies.Repositories;
-
-
+using AspNetCoreRateLimit;
+using Microsoft.Extensions.DependencyInjection;
 
 var defaultCulture = new CultureInfo("en-US");
 CultureInfo.DefaultThreadCurrentCulture = defaultCulture;
@@ -46,8 +45,6 @@ builder.Host.UseSerilog((context, services, configuration) => configuration
     .WriteTo.Console()
     .WriteTo.File("../Movies.Logs/Serilog.txt", rollingInterval: RollingInterval.Day));
 
-builder.Services.AddRateLimiting();
-
 builder.Services.AddSignalR(options => 
 {
     options.EnableDetailedErrors = true;
@@ -55,7 +52,22 @@ builder.Services.AddSignalR(options =>
 builder.Services.AddDistributedMemoryCache(); //Needed for sessions
 builder.Services.AddSession();
 
-builder.Services.AddAuthorization();
+builder.Services.AddMemoryCache();
+
+builder.Services.Configure<IpRateLimitOptions>(options => {
+
+    builder.Configuration.GetSection("IpRateLimiting").Bind(options);
+    
+    options.QuotaExceededResponse = new QuotaExceededResponse {
+        Content = "Too many requests. Try again later.",
+        ContentType = "text/plain"
+    };
+});
+builder.Services.AddSingleton<IIpPolicyStore, MemoryCacheIpPolicyStore>();
+builder.Services.AddSingleton<IRateLimitCounterStore, MemoryCacheRateLimitCounterStore>();
+builder.Services.AddSingleton<IProcessingStrategy, AsyncKeyLockProcessingStrategy>();
+builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
+
 
 builder.Services.Configure<IdentityOptions>(options =>{
     options.SignIn.RequireConfirmedAccount = false;
@@ -75,8 +87,18 @@ else
     app.UseHsts();
 }
 
+app.Use(async (context, next) =>
+{
+    await next();
 
-app.UseRateLimiter();
+    if (context.Response.StatusCode == 429 && !context.Response.HasStarted)
+    {
+        context.Response.ContentType = "application/json";
+        await context.Response.WriteAsync("{\"error\": \"Too many requests. Try again later.\"}");
+    }
+});
+
+app.UseIpRateLimiting();
 //app.UseHttpsRedirection();
 app.UseRouting();
 
