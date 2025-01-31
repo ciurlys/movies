@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Hosting;
+using Movies.Services;
 
 namespace Movies.Repositories;
 
@@ -9,12 +10,15 @@ public class MovieRepository : IMovieRepository
 {
     private readonly MoviesDataContext _db;
     private readonly IWebHostEnvironment _webHostEnvironment;
-    private readonly int ITEMS_PER_PAGE = 20;
+    private readonly int ITEMS_PER_PAGE = 5;
+    private readonly IImageService _imageService;
     public MovieRepository(MoviesDataContext db,
-			   IWebHostEnvironment webHostEnvironment)
+			   IWebHostEnvironment webHostEnvironment,
+			   IImageService imageService)
     {
 	_db = db;
 	_webHostEnvironment = webHostEnvironment;
+	_imageService = imageService;
     }
 
     public async Task<IEnumerable<Movie>> GetByTitleAsync(string? title,
@@ -56,31 +60,29 @@ public class MovieRepository : IMovieRepository
     public async Task<int> UpdateAsync(Movie movie, IFormFile? ImageFile)
     {
 	Movie? movieInDb = await _db.Movies.FindAsync(movie.MovieId);
-
-            if (movieInDb is not null)
-            {
-                if (ImageFile != null &&
-		    ImageFile.Length > 0 &&
-		    !string.IsNullOrWhiteSpace(movieInDb.ImagePath))
-                {
-		    movieInDb.ImagePath = HandleImageSaving(ImageFile,
-							    movieInDb.ImagePath);
-                }
-
-                movieInDb.Title = movie.Title;
-                movieInDb.Director = movie.Director;
-                movieInDb.ReleaseDate = movie.ReleaseDate;
-                movieInDb.Description = movie.Description;               
-	    }
-	    return await _db.SaveChangesAsync();	
+	if (movieInDb is null) return 0;
+	
+	movieInDb.ImagePath = await _imageService.SaveImageAsync(
+	    ImageFile,
+	    movieInDb.ImagePath
+	);
+	movieInDb.Title = movie.Title;
+	movieInDb.Director = movie.Director;
+	movieInDb.ReleaseDate = movie.ReleaseDate;
+	movieInDb.Description = movie.Description;               
+ 
+	return await _db.SaveChangesAsync();	
     }
+
+    public async Task<int> CountAsync()
+    {
+	return await _db.Movies.CountAsync();
+    }
+    
     //Returns the int of rows affected
     public async Task<int> AddAsync(Movie movie, IFormFile? ImageFile)
     {
-	if (ImageFile != null && ImageFile.Length > 0)
-	{       
-	    movie.ImagePath = HandleImageSaving(ImageFile, movie.ImagePath);
-	}
+	movie.ImagePath = await _imageService.SaveImageAsync(ImageFile, movie.ImagePath);
 	_db.Movies.Add(movie);
 	return await _db.SaveChangesAsync();
     }
@@ -90,26 +92,4 @@ public class MovieRepository : IMovieRepository
 	_db.Movies.Remove(movie);
 	return await _db.SaveChangesAsync();
     }    
-    //Returns the path to the saved image
-    private string HandleImageSaving(IFormFile? ImageFile, string? imagePath = "")
-    {
-	string oldFilePath = Path.Combine(_webHostEnvironment.WebRootPath,
-					  "covers",
-					  imagePath);
-	if (System.IO.File.Exists(oldFilePath))
-	{
-	    System.IO.File.Delete(oldFilePath);
-	}
-	
-	string uniqueFileName = Guid.NewGuid().ToString() + "_" + ImageFile.FileName;
-	string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "covers");
-	string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-	using (var fileStream = new FileStream(filePath, FileMode.Create))
-	{
-	    ImageFile.CopyTo(fileStream);
-	}
-	
-	return uniqueFileName;
-    }
 }

@@ -5,7 +5,7 @@ using Microsoft.Extensions.Http;
 
 namespace Movies.Services;
 
-public class MovieService
+public class MovieService : IMovieService
 {
     private readonly ILogger<MovieService> _logger;
     private readonly HttpClient _httpClient;

@@ -17,9 +17,11 @@ public class CommentController : Controller
     private readonly MoviesDataContext _db;
     private readonly ICommentRepository _commentRepository;
     private readonly IMovieRepository _movieRepository;
+    private readonly IUserRepository _userRepository;
     private readonly UserManager<IdentityUser> _userManager;
     private readonly ILogger<CommentController> _logger;
     public CommentController(ICommentRepository commentRepository,
+			     IUserRepository userRepository,
 			     UserManager<IdentityUser> userManager,
 			     ILogger<CommentController> logger,
 			     IMovieRepository movieRepository,
@@ -28,6 +30,7 @@ public class CommentController : Controller
 	_db = db;
 	_commentRepository = commentRepository;
 	_movieRepository = movieRepository;
+	_userRepository = userRepository;
 	_userManager = userManager;
 	_logger = logger;
     }
@@ -88,16 +91,12 @@ public class CommentController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> AddComment(int movieId, string userId, string title, string description)
     {
-	// add _commentRepository.AddAsync(paramas)
 	int addedCommentId = await _commentRepository.AddAsync(movieId, userId, title, description);
 
-	//Now we inform all users that a new comment has been made
+	//Inform all users that a new comment has been made
 
-	//FIX WITH REPOSITORIES
-	var userIds = await GetAllUserIds();
-
-	var filteredUserIds = userIds.Where(id => id != userId).ToList();
-
+	var userIds = await _userRepository.GetAllUserIds();
+	var filteredUserIds = userIds.Where(id => id != userId);
 	var unreadEntries = filteredUserIds.Select(userId => new UserCommentRead
 	    {
 		UserId = userId,
@@ -148,14 +147,7 @@ public class CommentController : Controller
             return RedirectToAction("AddComment", new {id = comment.MovieId});
         }
     }
-    
-    public async Task<List<string>> GetAllUserIds()
-    {
-	return await _userManager.Users
-	    .Select(u => u.Id)
-	    .ToListAsync();
-    }
-    
+        
     //These methods help the JavaScript frontend figure out the comment state 
     [HttpGet]
     public async Task<IActionResult> GetUnreadCommentsCount(int movieId)

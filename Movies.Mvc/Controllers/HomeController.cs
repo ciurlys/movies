@@ -6,25 +6,18 @@ using Microsoft.EntityFrameworkCore;
 using Movies.EntityModels;
 using System.Text.Json;
 using System.Threading.Tasks;
-using System.Net.Http;
 using Movies.Repositories;
 
 namespace Movies.Mvc.Controllers;
 [Authorize]
 public class HomeController : Controller
 {
-    private const int ITEMS_PER_PAGE = 20;
+    private const int ITEMS_PER_PAGE = 5;
     private readonly ILogger<HomeController> _logger;
-    private readonly IHttpClientFactory _httpClient;
-    private readonly MoviesDataContext _db;
     private readonly IMovieRepository _movieRepository;
     public HomeController(ILogger<HomeController> logger,
-			  MoviesDataContext db,
-			  IHttpClientFactory httpClient,
 			  IMovieRepository movieRepository)
     {
-        _httpClient = httpClient;
-        _db = db;
         _logger = logger;
 	_movieRepository = movieRepository;
     }
@@ -33,7 +26,7 @@ public class HomeController : Controller
     {
         return View();
     }
-    //GET: /home/movies/{title:string}{onlySeen:string}
+    //GET: /home/movies/{title:string}{onlySeen:string}{page:int}
     public async Task<IActionResult> Movies(string? title, string? onlySeen, int? page)
     {
 
@@ -55,10 +48,7 @@ public class HomeController : Controller
 	    await _movieRepository.GetAllAsync(onlySeen, page)
 	};
 
-	//TODO: FIX PAGING, model.Count returns the fetched List count, but not all the
-	//possible movies from the query
-	
-        ViewData["PageCount"] = (model.Count + ITEMS_PER_PAGE - 1) / ITEMS_PER_PAGE;
+        ViewData["PageCount"] = (await _movieRepository.CountAsync() + ITEMS_PER_PAGE - 1) / ITEMS_PER_PAGE;
         return View(model);
     }
 

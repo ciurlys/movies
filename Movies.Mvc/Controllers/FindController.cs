@@ -12,16 +12,13 @@ namespace Movies.Mvc.Controllers;
 [Route("Find")]
 public class FindController : Controller
 {
-    private readonly MoviesDataContext _db;
     private readonly ILogger<FindController> _logger;
-    private readonly MovieService _movieService;
+    private readonly IMovieService _movieService;
     private readonly IMovieRepository _movieRepository;
-    public FindController(MoviesDataContext db,
-			  ILogger<FindController> logger,
-			  MovieService movieService,
+    public FindController(ILogger<FindController> logger,
+			  IMovieService movieService,
 			  IMovieRepository movieRepository)
     {
-	_db = db;
 	_logger = logger;
 	_movieService = movieService;
 	_movieRepository = movieRepository;

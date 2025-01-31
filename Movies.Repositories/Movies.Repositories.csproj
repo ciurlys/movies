@@ -4,10 +4,14 @@
     <ProjectReference Include="..\Movies.EntityModels\Movies.EntityModels.csproj" />
     <ProjectReference Include="..\Movies.DataContext\Movies.DataContext.csproj" />
     <ProjectReference Include="..\Movies.Common\Movies.Common.csproj" />
+    <ProjectReference Include="..\Movies.Services\Movies.Services.csproj" />
   </ItemGroup>
  <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
+ <ItemGroup>
+   <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.1" />
+ </ItemGroup>
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
