@@ -1,9 +1,7 @@
 using Microsoft.AspNetCore.SignalR;
-using Movies.Chat.Models;
 using Movies.EntityModels;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
-using Movies.Chat.Models;
+
 
 namespace Movies.SignalR.Service.Hubs;
 
@@ -32,10 +30,8 @@ public class ProposeDateHub : Hub
 		ProposedDate = utcDate,
 		Votes = 0
 	    };
-	
 	try
 	{ 
-
 	    _db.Dates.Add(newDate);
 	    await _db.SaveChangesAsync();
 	    await transaction.CommitAsync();
@@ -44,7 +40,7 @@ public class ProposeDateHub : Hub
 	catch (Exception ex)
 	{
 	    await transaction.RollbackAsync();
-	    Console.WriteLine("Error trying to add date");
+	    Console.WriteLine("Error trying to add date: ", ex);
 	}
 
         IClientProxy proxy;

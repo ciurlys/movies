@@ -2,6 +2,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Movies.EntityModels\Movies.EntityModels.csproj" />
+    <ProjectReference Include="..\Movies.Common\Movies.Common.csproj" />
+    <ProjectReference Include="..\Movies.Options\Movies.Options.csproj" />
   </ItemGroup>
 
   <ItemGroup>

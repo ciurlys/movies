@@ -2,11 +2,10 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Movies.Mvc.Models;
-using Microsoft.EntityFrameworkCore;
 using Movies.EntityModels;
-using System.Text.Json;
-using System.Threading.Tasks;
 using Movies.Repositories;
+using Microsoft.AspNetCore.Identity;
+
 
 namespace Movies.Mvc.Controllers;
 [Authorize]
@@ -15,10 +14,13 @@ public class HomeController : Controller
     private const int ITEMS_PER_PAGE = 10;
     private readonly ILogger<HomeController> _logger;
     private readonly IMovieRepository _movieRepository;
+    private readonly UserManager<IdentityUser> _userManager;    
     public HomeController(ILogger<HomeController> logger,
-			  IMovieRepository movieRepository)
+			  IMovieRepository movieRepository,
+			  UserManager<IdentityUser> userManager)
     {
         _logger = logger;
+	_userManager = userManager;
 	_movieRepository = movieRepository;
     }
 
@@ -29,18 +31,35 @@ public class HomeController : Controller
     //GET: /home/movies/{title:string}{onlySeen:bool}{page:int}
     public async Task<IActionResult> Movies(string? title, bool? onlySeen, int? page)
     {
-	onlySeen = onlySeen ?? false;
+	var userId = _userManager.GetUserId(User);
+	
+	if (userId is null)
+	{
+		_logger.LogWarning("User Id {UserId} not found", userId);
+		return NotFound();
+	}
 
+	onlySeen = onlySeen ?? false;
 	ViewData["onlySeen"] = onlySeen;
 	
 	HomeMoviesViewModel model = new HomeMoviesViewModel {
 	    Movies =
-	    (!string.IsNullOrWhiteSpace(title)) ?
-	    await _movieRepository.GetByTitleAsync(title, onlySeen, page, ITEMS_PER_PAGE) :
-	    await _movieRepository.GetAllAsync(onlySeen, page, ITEMS_PER_PAGE)
+	    (!string.IsNullOrWhiteSpace(title))
+	    ? await _movieRepository.GetByTitleAsync(
+		title,
+		onlySeen,
+		page,
+		ITEMS_PER_PAGE,
+		userId
+	    )
+	    : await _movieRepository.GetAllAsync(
+		onlySeen,
+		page,
+		ITEMS_PER_PAGE,
+		userId)
 	};
 	
-	int count = await _movieRepository.CountAsync(onlySeen);
+	int count = await _movieRepository.CountAsync(title, onlySeen);
         ViewData["PageCount"] = (count + ITEMS_PER_PAGE - 1) / ITEMS_PER_PAGE;
         return View(model);
     }

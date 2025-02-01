@@ -1,5 +1,5 @@
 using Movies.EntityModels;
-using Movies.Chat.Models;
+using Movies.Models;
 
 namespace Movies.Repositories;
 

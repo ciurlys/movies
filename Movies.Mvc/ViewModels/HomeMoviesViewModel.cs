@@ -5,5 +5,4 @@ namespace Movies.Mvc.Models;
 public class HomeMoviesViewModel
 {
     public IEnumerable<Movie> Movies { get; set; } = new List<Movie>();
-    public int Count => Movies.Count();
 }

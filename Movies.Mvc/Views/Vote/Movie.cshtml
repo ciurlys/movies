@@ -1,4 +1,4 @@
-@using Movies.Chat.Models
+@using Movies.Models
 @using Microsoft.AspNetCore.Identity
 @using Movies.EntityModels
 @inject UserManager<IdentityUser> UserManager
@@ -31,7 +31,14 @@
 
                     <span>@date.ProposedDate has</span>
                     <span class="vote-count">@date.Votes votes.</span>
-                    <button class="vote-button" data-date-id="@date.VoteDateId">Vote</button>
+		    @if (!date.HasVoted)
+		    {
+		    <button style="color: green" class="vote-button btn-danger" data-date-id="@date.VoteDateId">Vote</button>
+		    }
+		    else
+		    {
+		    <button style="color: red" class="vote-button btn-success" data-date-id="@date.VoteDateId">Vote</button>		    
+		    }
                 </li>
 		    }
         </ul>
@@ -53,7 +60,14 @@
 
                     <span>@movie.Title has</span>
                     <span class="movie-vote-count">@movie.Votes votes.</span>
-                    <button class="movie-vote-button" data-movie-id="@movie.MovieId">Vote</button>
+		    @if (!movie.HasVoted)
+		    {
+                    <button style="color: green" class="movie-vote-button btn-danger" data-movie-id="@movie.MovieId">Vote</button>
+		    }
+		    else
+		    {
+                    <button style="color: red" class="movie-vote-button btn-success" data-movie-id="@movie.MovieId">Vote</button>
+		    }
                 </li>
 		    }
         </ul>
@@ -65,7 +79,7 @@
     </div>
 
     @section Scripts {
-	<script src="~/js/signalr/dist/browser/signalr.js"></script>
+    <script src="~/js/signalr/dist/browser/signalr.js"></script>
     <script src="~/js/vote-date.js"></script>
     <script src="~/js/vote-movie.js"></script>
     }

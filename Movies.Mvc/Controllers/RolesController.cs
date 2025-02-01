@@ -25,9 +25,9 @@ public class RolesController : Controller
             await _roleManager.CreateAsync(new IdentityRole(AdminRole));
         }
 
-        IdentityUser? user = await _userManager.FindByNameAsync(User.Identity.Name);
+        IdentityUser? user = await _userManager.FindByNameAsync(User.Identity!.Name!);
 
-        if (!(await _userManager.IsInRoleAsync(user, AdminRole)) && user is not null)
+        if (!await _userManager.IsInRoleAsync(user!, AdminRole) && user is not null)
         {
             IdentityResult result = await _userManager
                 .AddToRoleAsync(user, AdminRole);

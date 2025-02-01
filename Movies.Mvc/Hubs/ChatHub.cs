@@ -1,9 +1,7 @@
 using Microsoft.AspNetCore.SignalR;
-using Movies.Chat.Models;
+using Movies.Models;
 using Movies.EntityModels;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
-using Movies.Chat.Models;
 
 namespace Movies.SignalR.Service.Hubs;
 

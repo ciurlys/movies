@@ -1,38 +1,41 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Movies.Mvc.Models;
-using Microsoft.EntityFrameworkCore;
 using Movies.EntityModels;
 using Microsoft.AspNetCore.Identity;
-using Movies.Chat.Models;
-using Microsoft.AspNetCore.RateLimiting;
-
+using Movies.Repositories;
 
 namespace Movies.Mvc.Controllers;
 [Authorize]
 public class VoteController : Controller
 {
     private readonly MoviesDataContext _db;
+	private readonly ILogger<VoteController> _logger;
     private readonly UserManager<IdentityUser> _userManager;
+    private readonly IVoteRepository _voteRepository;
     public VoteController(MoviesDataContext db,
-			  UserManager<IdentityUser> userManager)
+			  UserManager<IdentityUser> userManager,
+			  IVoteRepository voteRepository,
+			  ILogger<VoteController> logger
+			  )
     {
 	_userManager = userManager;
 	_db = db;
+	_voteRepository = voteRepository;
+	_logger = logger;
     }
 
     public async Task<IActionResult> Movie()
     {
-	var dates = await _db.Dates
-	    .OrderByDescending(d => d.Votes)
-	    .ThenBy(d => d.ProposedDate)
-	    .ToListAsync();
+	var userId = _userManager.GetUserId(User);
+	if (userId is null)
+	{
+		_logger.LogWarning("User Id {UserId} not found", userId);
+		return NotFound();
+	}
 
-	var movies = await _db.Movies
-	    .OrderByDescending(m => m.Votes)
-	    .ThenBy(m => m.Title)
-	    .Where(m => !m.Seen)
-	    .ToListAsync();
+	var dates = await _voteRepository.GetDates(userId);
+
+	var movies = await _voteRepository.GetMovies(userId);
 	
 	var model = new
 	{
@@ -46,16 +49,23 @@ public class VoteController : Controller
     [AllowAnonymous]
     public async Task<IActionResult> Plan()
     {
-	var topDate = await _db.Dates
-	    .OrderByDescending(d => d.Votes)
-	    .ThenBy(d => d.ProposedDate)
-	    .FirstOrDefaultAsync();
+
+	var topDate = await _voteRepository.GetTopDate();
 	
-	var topMovie = await _db.Movies
-	    .OrderByDescending(m => m.Votes)
-	    .ThenBy(m => m.Title)
-	    .Where(m => !m.Seen)
-	    .FirstOrDefaultAsync();
+	if (topDate is null)
+	{
+		_logger.LogWarning("Top date {TopDate} not found", topDate);
+		return NotFound();
+	}
+
+	var topMovie = await _voteRepository.GetTopMovie();
+	
+	if (topMovie is null)
+	{
+		_logger.LogWarning("Top movie {TopMovie} not found", topMovie);
+		return NotFound();
+	}
+
 
 	var model = new
 	{
@@ -65,35 +75,6 @@ public class VoteController : Controller
 	};
 
 	return View(model);
-    }
-
-    //Will return 1 on HasVoted == true, else will return 0
-    [HttpGet]
-    public async Task<JsonResult> CheckUserVoteDate(int voteDateId)
-    {
-	using var scopedDb = new MoviesDataContext();
-	var currentUserId = _userManager.GetUserId(User);
-	var userHasVoted = await scopedDb.UserVotesDate
-	    .AnyAsync(uvd =>
-		      uvd.DateId == voteDateId &&
-		      uvd.UserId == currentUserId &&
-		      uvd.HasVoted);
-	return Json(userHasVoted ? 1 : 0);
-    }
-
-    //Will return 1 on HasVoted == true, else will return 0
-    [HttpGet]
-    public async Task<JsonResult> CheckUserVoteMovie(int voteMovieId)
-    {
-	using var scopedDb = new MoviesDataContext();
-	var currentUserId = _userManager.GetUserId(User);
-	var userHasVoted = await scopedDb.UserVotesMovie
-	    .AnyAsync(uvm =>
-		      uvm.MovieId == voteMovieId &&
-		      uvm.UserId == currentUserId &&
-		      uvm.HasVoted);
-
-	return Json(userHasVoted ? 1 : 0);
     }
     
 }

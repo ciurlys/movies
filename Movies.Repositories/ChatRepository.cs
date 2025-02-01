@@ -1,6 +1,6 @@
 using Movies.EntityModels;
 using Microsoft.EntityFrameworkCore;
-using Movies.Chat.Models;
+using Movies.Models;
 
 namespace Movies.Repositories;
 

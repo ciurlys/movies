@@ -1,4 +1,4 @@
-﻿namespace Movies.Chat.Models;
+﻿namespace Movies.Models;
 
 public class UserModel 
 {

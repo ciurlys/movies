@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.SignalR;
-using Movies.Chat.Models;
+using Movies.Models;
 using Movies.EntityModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
-using Movies.Chat.Models;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace Movies.SignalR.Service.Hubs;
 
@@ -11,11 +11,13 @@ public class VoteMovieHub : Hub
 {
     private readonly MoviesDataContext _db;
     private readonly UserManager<IdentityUser> _userManager;
+	private readonly Logger<VoteMovieHub> _logger;
 
-    public VoteMovieHub (MoviesDataContext db, UserManager<IdentityUser> userManager)
+    public VoteMovieHub (MoviesDataContext db, UserManager<IdentityUser> userManager, Logger<VoteMovieHub> logger)
     {
 	_db = db;
 	_userManager = userManager;
+	_logger = logger;
     }
     
     public async Task SendMovieVote(VoteMovieModel voteMovie)
@@ -28,6 +30,12 @@ public class VoteMovieHub : Hub
 	//Get the current votes of the movie
 	var currentMovie = await _db.Movies
 	    .FirstOrDefaultAsync(m => m.MovieId == voteMovie.MovieId);	
+
+	if (currentMovie is null)
+	{
+		_logger.LogWarning("Current movie not found - Movie Id: {MovieId}", voteMovie.MovieId);
+		return;
+	}
 
 	try
 	{
@@ -62,7 +70,7 @@ public class VoteMovieHub : Hub
 	catch (Exception ex)
 	{
 	    await transaction.RollbackAsync();
-	    Console.WriteLine("Error trying to vote");
+	    Console.WriteLine("Error trying to vote: ", ex);
 	}
 
         IClientProxy proxy;
@@ -70,7 +78,7 @@ public class VoteMovieHub : Hub
 	
 
 	await proxy.SendAsync("ReceiveMovieVoteUpdate",
-			      new { Votes = currentMovie.Votes,
+			      new { Votes = currentMovie!.Votes,
 			            MovieId = voteMovie.MovieId});
 
 	return;

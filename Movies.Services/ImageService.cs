@@ -17,7 +17,7 @@ public class ImageService : IImageService
 					     string? existingPath = "")
     {
 	if (imageFile == null || imageFile.Length == 0)
-	    return existingPath;
+	    return existingPath!;
 
 	if (!string.IsNullOrEmpty(existingPath))
 	    DeleteImage(existingPath);
@@ -32,7 +32,7 @@ public class ImageService : IImageService
 
 	using (var fileStream = new FileStream(filePath, FileMode.Create))
 	{
-	    imageFile.CopyTo(fileStream);
+	    await imageFile.CopyToAsync(fileStream);
 	}
 	return uniqueFileName;
     }

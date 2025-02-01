@@ -1,3 +1,6 @@
+using AutoMapper;
+using Movies.Options;
+using Movies.Mappings;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -29,12 +32,21 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services.AddHttpClient();
-builder.Services.AddScoped<IMovieService, MovieService>();
-builder.Services.AddScoped<IMovieRepository, MovieRepository>();
-builder.Services.AddScoped<IChatRepository, ChatRepository>();
-builder.Services.AddScoped<ICommentRepository, CommentRepository>();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IImageService, ImageService>();
+builder.Services.AddHttpClient("OMDB", client => 
+{
+    client.BaseAddress = new Uri("https://www.omdbapi.com/");
+});
+
+builder.Services.AddAutoMapper(typeof(MovieMappingProfile));
+
+builder.Services.Configure<OmdbApiOptions>(
+    builder.Configuration.GetSection(OmdbApiOptions.SectionName));
+
+builder.Services.Configure<DatabaseOptions>(
+    builder.Configuration.GetSection(DatabaseOptions.SectionName));
+
+builder.Services.AddServices();
+builder.Services.AddRepositories();
 
 builder.Services.AddControllersWithViews();
 
@@ -109,13 +121,10 @@ app.UseSession();
 app.MapStaticAssets();
 
 
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapHub<ChatHub>("/chat");
-    endpoints.MapHub<VoteDateHub>("/voteDateHub");
-    endpoints.MapHub<VoteMovieHub>("/voteMovieHub");
-    endpoints.MapHub<ProposeDateHub>("/proposeDateHub");
-});
+app.MapHub<ChatHub>("/chat");
+app.MapHub<VoteDateHub>("/voteDateHub");
+app.MapHub<VoteMovieHub>("/voteMovieHub");
+app.MapHub<ProposeDateHub>("/proposeDateHub");
 
 app.MapControllerRoute(
     name: "default",

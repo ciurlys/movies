@@ -2,6 +2,11 @@ using Movies.EntityModels;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Http;
+using Movies.Models;
+using AutoMapper;
+using Movies.Options;
+using Microsoft.Extensions.Options;
+using System.Net.Http.Json;
 
 namespace Movies.Services;
 
@@ -9,15 +14,19 @@ public class MovieService : IMovieService
 {
     private readonly ILogger<MovieService> _logger;
     private readonly HttpClient _httpClient;
+    private readonly IMapper _mapper;
     private readonly string _apiKey;
 
     public MovieService(
         ILogger<MovieService> logger,
-        IHttpClientFactory httpClientFactory)
+        IHttpClientFactory httpClientFactory,
+	IOptions<OmdbApiOptions> options,
+	IMapper mapper)
     {
         _logger = logger;
-        _httpClient = httpClientFactory.CreateClient();
-        _apiKey = Environment.GetEnvironmentVariable("API_KEY");
+        _httpClient = httpClientFactory.CreateClient("OMDB");
+        _apiKey = options.Value.ApiKey;
+	_mapper = mapper;
     }
 
     public async Task<Movie?> GetMovieAsync(string title)
@@ -26,7 +35,7 @@ public class MovieService : IMovieService
         {
 	    try
 	    {
-		string apiUrl = $"https://www.omdbapi.com/?t={Uri.EscapeDataString(title)}&apikey={_apiKey}";
+		string apiUrl = $"?t={Uri.EscapeDataString(title)}&apikey={_apiKey}";
 		HttpResponseMessage response = await _httpClient.GetAsync(apiUrl);
 		
 		_logger.LogInformation("API response received - Status: {StatusCode}",
@@ -37,9 +46,9 @@ public class MovieService : IMovieService
 				       response.StatusCode);
 		    return null;
 		}
-		string jsonResponse = await response.Content.ReadAsStringAsync();
-                var movieData = JsonSerializer
-		 .Deserialize<OmdbApiResponse>(jsonResponse);
+		var movieData = await response
+		    .Content
+		    .ReadFromJsonAsync<OmdbApiResponse>();
 
 		if (movieData?.Response == "false")
 		{
@@ -50,7 +59,7 @@ public class MovieService : IMovieService
 		_logger.LogInformation("Successfully retrieved movie - Title: {Title}",
 				       title);
 		
-		return MapToMovie(movieData);
+		return _mapper.Map<Movie>(movieData!);
 	    }
 	    catch (Exception ex)
 	    {
@@ -59,28 +68,6 @@ public class MovieService : IMovieService
 	    }
 
 	}
-    }
+    }	
+}
 
-	private Movie MapToMovie(OmdbApiResponse movieData)
-	{
-            var movie = new Movie
-            {
-                Title = movieData.Title,
-                Director = movieData.Director,
-                Description = movieData.Plot,
-                ReleaseDate = new DateOnly(int.Parse(movieData.Year), 1, 1),
-                ImagePath = movieData.Poster
-            };
-	    return movie;
-	}
-}
-    
-public class OmdbApiResponse
-{
-    public string Title { get; set; }
-    public string Director { get; set; }
-    public string Plot { get; set; }
-    public string Year { get; set; }
-    public string Poster { get; set; }
-    public string Response { get; set; }
-}

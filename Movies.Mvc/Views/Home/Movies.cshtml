@@ -3,34 +3,40 @@
 @using Microsoft.AspNetCore.Identity
 @inject UserManager<IdentityUser> UserManager
 @using Movies.EntityModels;
+@{
+    var user = await UserManager.FindByNameAsync(User.Identity!.Name!);
+    var isAdmin = user != null && await UserManager.IsInRoleAsync(user, "Administrators");
+}
+
 <div class="row">
     <h1 class="display-2">Movies</h1>
 
 
-    @if (await UserManager.IsInRoleAsync(await UserManager.FindByNameAsync(User.Identity.Name), "Administrators"))
+    @if (isAdmin)
     {
         <a href="/Home/AddMovie" class="btn btn-primary">Add a movie</a>
     }
 
     @* search by title *@
 
-    <form method="get" asp-controller="Home" asp-action="Movies" >
-        <input type="text" name="title"  value="@ViewContext.HttpContext.Request.Query["title"]"/>
-        <input type="submit">
+	<form method="get" asp-controller="Home" asp-action="Movies" >
+            <input type="text" name="title" value='@ViewContext.HttpContext.Request.Query["title"]'/>
+	    <input type="hidden" name="onlySeen" value='@ViewContext.HttpContext.Request.Query["onlySeen"]'/>
+            <input type="submit">
     </form>
 
 
     @* only show seen movies *@
     <form method="get" asp-controller="Home" asp-action="Movies">
-        @if (ViewData["onlySeen"] != null && (bool)ViewData["onlySeen"] == true){
-            <button type="submit" class="btn btn-primary only-seen" name="onlySeen">
+        @if (ViewData["onlySeen"] != null && (bool)ViewData["onlySeen"]! == true){
+            <button type="submit" class="btn btn-primary" onclick="setOnlySeen(event)" name="onlySeen">
                 Show all movies
             </button>
         }    
         else
         {
 
-            <button type="submit" class="btn btn-primary only-seen" name="onlySeen">
+            <button type="submit" class="btn btn-primary" onclick="setOnlySeen(event)" name="onlySeen">
                 Show only seen movies
             </button>
         }
@@ -68,10 +74,20 @@
                         <td>@movie.ReleaseDate.Year</td>
                         <td>@movie.Description</td>
                         <td>
-                        
-                            <a class="btn btn-success" data-bs-toggle="comment" data-id="@movie.MovieId" asp-controller="Comment" asp-action="AddComment" asp-route-id="@movie.MovieId">Comment</a>
-                        @if (await UserManager.IsInRoleAsync(await UserManager.FindByNameAsync(User.Identity.Name), "Administrators")){
+			    @if (movie.UnreadCommentCount == 0)
+                            {
+				<a class="btn btn-success" data-bs-toggle="comment" data-id="@movie.MovieId" asp-controller="Comment" asp-action="AddComment" asp-route-id="@movie.MovieId">Comment</a>
+			    }
+			    else
+			    {
+			    <a class="btn btn-warning" data-bs-toggle="comment" data-id="@movie.MovieId" asp-controller="Comment" asp-action="AddComment" asp-route-id="@movie.MovieId">Comment (@movie.UnreadCommentCount)</a>			    
+			    }
+                        @if (isAdmin){
+
+
                             <a class="btn btn-primary" asp-controller="Home" asp-action="EditMovie" asp-route-id="@movie.MovieId">Edit</a>
+
+			    
                             <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="@movie.MovieId">Delete</button>
                         }
                         </td>
@@ -84,10 +100,10 @@
 
 @* PAGES *@
 <div>
-    @for (int i = 0; i < (int)ViewData["PageCount"]; i++)
+    @for (int i = 0; i < (int)ViewData["PageCount"]!; i++)
     {
-        @* <a href="/Home/Movies/?onlySeen=@ViewData["onlySeen"]&title=@ViewContext.HttpContext.Request.Query["title"]&page=@i">@(i + 1)</a> *@
-        <a class="btn btn-light" href="/Home/Movies/?page=@i">@(i + 1)</a>
+	<a href="/Home/Movies/?onlySeen=@ViewData["onlySeen"]&title=@ViewContext.HttpContext.Request.Query["title"]&page=@i">@(i + 1)</a>
+
     }
 </div>
 
@@ -138,16 +154,15 @@
         }
     });
 </script>
-<script src="~/js/comments.js" defer></script>
 <script>
- var buttons = document.querySelectorAll('.only-seen');
- buttons.forEach(button => {
-     button.addEventListener('click', e => {
-	 e.preventDefault();
-	 var onlySeen = localStorage.getItem("onlySeen") ?? false;
-	 onlySeen ? onlySeen = false : onlySeen = true;
-	 localStorage.setItem("onlySeen", JSON.stringify(onlySeen));
-	 window.location.href = `/home/movies?onlySeen=${onlySeen}`;
- });
- });
+ 
+function setOnlySeen(event) {
+     event.preventDefault();
+	 
+     var onlySeen = JSON.parse(localStorage.getItem("onlySeen") ?? true);		 
+     onlySeen = !onlySeen;
+     
+     localStorage.setItem("onlySeen", JSON.stringify(onlySeen)); 
+     window.location.href = `/home/movies?onlySeen=${onlySeen}`;
+}
 </script>

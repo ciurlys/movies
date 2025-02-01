@@ -6,25 +6,36 @@ namespace Movies.Repositories;
 public class CommentRepository : ICommentRepository
 {
     private readonly MoviesDataContext _db;
-
+    
     public CommentRepository(MoviesDataContext db)
     {
 	_db = db;
     }
 
-    public async Task<Comment> GetByIdAsync(int? id)
+    public async Task<Comment?> GetByIdAsync(int? id)
     {
 	return await _db.Comments
 	    .FirstOrDefaultAsync(c => c.CommentId == id, CancellationToken.None);
     }
     
-    public async Task<List<Comment>> GetByMovieIdAsync(int? movieId)
+    public async Task<List<Comment>> GetByMovieIdAsync(int? movieId, string userId)
     {
 	return await _db.Comments
 	    .Where(c => c.MovieId == movieId)
+	    .OrderByDescending(c => c.CommentId)
+	    .Select(c => new Comment
+	    {
+		CommentId = c.CommentId,
+		UserId = c.UserId,
+		MovieId = c.MovieId,
+		Title = c.Title,
+		Description = c.Description,
+		IsSeen = _db.UserCommentReads
+		.FirstOrDefault(ucr => ucr.CommentId == c.CommentId &&
+				     ucr.UserId == userId)!.Seen ? true : false
+	    })
 	    .ToListAsync();
     }
-    
     //Returns ID of the added comment
     public async Task<int> AddAsync(
 	int movieId,
@@ -40,7 +51,7 @@ public class CommentRepository : ICommentRepository
             Description = description
         };
 
-	_db.Comments.AddAsync(comment);
+	await _db.Comments.AddAsync(comment);
 	await _db.SaveChangesAsync();
 	return comment.CommentId;
     }
@@ -59,7 +70,7 @@ public class CommentRepository : ICommentRepository
     public async Task<int> DeleteAsync(int? id)
     {
 	Comment? commentInDb = await GetByIdAsync(id);
-	_db.Comments.Remove(commentInDb);
+	_db.Comments.Remove(commentInDb!);
 	return await _db.SaveChangesAsync();
     }
 

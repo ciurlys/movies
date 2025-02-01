@@ -2,12 +2,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Movies.EntityModels;
-using Movies.Mvc.Data;
-using Movies.Mvc.Models;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Movies.Repositories;
-
 
 namespace Movies.Mvc.Controllers;
 
@@ -20,6 +16,7 @@ public class CommentController : Controller
     private readonly IUserRepository _userRepository;
     private readonly UserManager<IdentityUser> _userManager;
     private readonly ILogger<CommentController> _logger;
+    
     public CommentController(ICommentRepository commentRepository,
 			     IUserRepository userRepository,
 			     UserManager<IdentityUser> userManager,
@@ -39,33 +36,59 @@ public class CommentController : Controller
     [HttpGet]
     public async Task<IActionResult> AddComment(int? id)
     {
+	Movie? movie;
+	List<Comment> comments;
+	var userId = _userManager.GetUserId(User);
         if (id is null || id <= 0)
         {
             return NotFound();
         }
+	
+	if (userId is null)
+	{
+		_logger.LogWarning("User Id {UserId} not found", userId);
+		return NotFound();
+	}
 	try
 	{
-	    List<Comment> comments = await _commentRepository.GetByMovieIdAsync(id);
+	    comments = await _commentRepository.GetByMovieIdAsync(id, userId);
 
-	    //Move the movie getting elsewhere so the try catch would be more specific
-	    Movie movie = await _movieRepository.GetByIdAsync(id);   
+	   
 	    if (comments is null)
 	    {
 		_logger.LogWarning("Failed to find comments for  movie - Movie Id: {Id}", id);
 		return NotFound();
 	    }
-	    var model = new {
-		Movie = movie,
-		Comments = comments
-	    };
-
-	    return View(model);
 	}
 	catch (Exception ex)
 	{
 	    _logger.LogError(ex, "Error searching comments for movie - Movie Id: {Id}", id); 
             return StatusCode(500, "Internal server error");
 	}
+
+	try
+	{
+	    movie = await _movieRepository.GetByIdAsync(id);
+
+	    if (movie is null)
+	    {
+		_logger.LogWarning("Failed to find comments for  movie - Movie Id: {Id}", id);
+		return NotFound();		
+	    }
+	}
+	catch (Exception ex)
+	{
+	    _logger.LogError(ex, "Error searching comments for movie - Movie Id: {Id}", id); 
+            return StatusCode(500, "Internal server error");
+	}
+	    
+	    var model = new {
+		Movie = movie,
+		Comments = comments
+	    };
+
+	    return View(model);
+
      }
 
     [HttpDelete]
@@ -148,21 +171,7 @@ public class CommentController : Controller
         }
     }
         
-    //These methods help the JavaScript frontend figure out the comment state 
-    [HttpGet]
-    public async Task<IActionResult> GetUnreadCommentsCount(int movieId)
-    {
-	var currentUserId = _userManager.GetUserId(User);
-	var unreadCount = await _db.Comments
-	    .Where(c => c.MovieId == movieId)
-	    .Where(c => c.UserId != currentUserId &&
-		   _db.UserCommentReads.Any(ucr =>
-					     ucr.CommentId == c.CommentId &&
-					     ucr.UserId == currentUserId &&
-					    ucr.Seen == false)).CountAsync();
-	return Json(unreadCount);
-    }
-
+    //This method helps the JavaScript frontend mark the comments as read 
     [HttpGet]
     public async Task<IActionResult> MarkCommentsAsRead(int movieId)
     {
@@ -187,20 +196,5 @@ public class CommentController : Controller
 	 await _db.SaveChangesAsync();
 	
 	 return Json(new {Count = unreadEntries.Count});
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> IsCommentSeen(int commentId)
-    {
-	var currentUserId = _userManager.GetUserId(User);
-	var commentReadState = await _db.UserCommentReads
-	    .FirstOrDefaultAsync(ucr => ucr.CommentId == commentId &&
-		   ucr.UserId == currentUserId);
-	if (commentReadState is null || commentReadState.Seen)
-	{
-	    return Json(0);
-	}
-	
-	return Json(1);
     }
 }

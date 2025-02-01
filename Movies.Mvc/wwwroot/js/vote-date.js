@@ -34,8 +34,6 @@ document.addEventListener("DOMContentLoaded", function () {
   document.querySelectorAll(".vote-button").forEach((button) => {
     const dateId = button.dataset.dateId;
 
-    UpdateVoteState(button, dateId);
-
     button.addEventListener("click", function () {
       button.style.color = button.style.color === "red" ? "green" : "red";
 
@@ -78,7 +76,7 @@ document.addEventListener("DOMContentLoaded", function () {
     li.dataset.votes = 0;
     li.className = "concrete-date";
     li.dataset.dateDateid = received.dateId;
-
+          
     var firstSpan = document.createElement("span");
     firstSpan.textContent = formattedDate + " has ";
 
@@ -90,9 +88,8 @@ document.addEventListener("DOMContentLoaded", function () {
     button.className = "vote-button";
     button.dataset.dateId = received.dateId;
     button.textContent = "Vote";
-
-    UpdateVoteState(button, received.dateId);
-
+    button.style.color = "green";
+      
     button.addEventListener("click", function () {
       button.style.color = button.style.color === "red" ? "green" : "red";
 
@@ -134,17 +131,3 @@ document.addEventListener("DOMContentLoaded", function () {
       event.preventDefault();
     });
 });
-
-// Check what button state we should print. 1 - has voted, else - has notes
-function UpdateVoteState(button, dateId) {
-  fetch(`/Vote/CheckUserVoteDate?votedateid=${dateId}`)
-    .then((response) => response.json())
-    .then((returnValue) => {
-      if (returnValue > 0) {
-        button.style.color = "red";
-      } else {
-        button.style.color = "green";
-      }
-    })
-    .catch(() => console.error("Error encountered trying to fetch vote state"));
-}

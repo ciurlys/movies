@@ -36,8 +36,6 @@ document.addEventListener("DOMContentLoaded", function () {
   document.querySelectorAll(".movie-vote-button").forEach((button) => {
     const movieId = button.dataset.movieId;
 
-    UpdateMovieVoteState(button, movieId);
-
     button.addEventListener("click", function () {
       button.style.color == "red"
         ? (button.style.color = "green")
@@ -57,18 +55,3 @@ document.addEventListener("DOMContentLoaded", function () {
     .then(() => console.log("SignalR Connected"))
     .catch((err) => console.error(err));
 });
-
-function UpdateMovieVoteState(button, movieId) {
-  fetch(`/Vote/CheckUserVoteMovie?votemovieid=${movieId}`)
-    .then((response) => response.json())
-    .then((returnValue) => {
-      if (returnValue > 0) {
-        button.style.color = "red";
-      } else {
-        button.style.color = "green";
-      }
-    })
-    .catch((ex) =>
-      console.error("Error encountered trying to fetch vote state " + ex),
-    );
-}

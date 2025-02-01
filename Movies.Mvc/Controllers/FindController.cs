@@ -1,9 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Movies.Mvc.Models;
-using Microsoft.EntityFrameworkCore;
 using Movies.EntityModels;
-using Microsoft.AspNetCore.Identity;
 using Movies.Services;
 using Movies.Repositories;
 namespace Movies.Mvc.Controllers;
@@ -75,7 +73,7 @@ public class FindController : Controller
 			     baseStreamOffset: 0,
 			     length: imageBytes.Length,
 			     name: "ImagePath",
-			     fileName: Path.GetFileName(movie.ImagePath))
+			     fileName: Path.GetFileName(movie.ImagePath)!)
 	    {
 		Headers = new HeaderDictionary(),
 		ContentType = "image/png"

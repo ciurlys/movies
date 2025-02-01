@@ -21,7 +21,7 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Movies">Movies</a>
+                            <a class="nav-link text-dark" id="moviesLink">Movies</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Find" asp-action="">Find</a>
@@ -54,3 +54,11 @@
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
+<script>
+ document.addEventListener("DOMContentLoaded", () => {
+     let onlySeen = JSON.parse(localStorage.getItem("onlySeen") || "false"); 
+
+     let moviesLink = document.getElementById("moviesLink");
+     moviesLink.href = `/home/movies?onlySeen=${onlySeen}`;
+    });
+</script>

@@ -1,9 +1,8 @@
 using Microsoft.AspNetCore.SignalR;
-using Movies.Chat.Models;
+using Movies.Models;
 using Movies.EntityModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
-using Movies.Chat.Models;
 
 namespace Movies.SignalR.Service.Hubs;
 
@@ -42,16 +41,16 @@ public class VoteDateHub : Hub
 		    HasVoted = true
 		};
 		_db.UserVotesDate.Add(existingVote);
-		currentDate.Votes++;
+		currentDate!.Votes++;
 	    }
 	    else if (!existingVote.HasVoted)
 	    {
 		existingVote.HasVoted = true;
-		currentDate.Votes++;
+		currentDate!.Votes++;
 	    }
 	    else if (existingVote.HasVoted) //Remove if already voted
 	    {
-		currentDate.Votes = Math.Max(0, currentDate.Votes - 1);
+		currentDate!.Votes = Math.Max(0, currentDate.Votes - 1);
 		_db.UserVotesDate.Remove(existingVote);
 	    }
 	    await _db.SaveChangesAsync();
@@ -60,7 +59,7 @@ public class VoteDateHub : Hub
 	catch (Exception ex)
 	{
 	    await transaction.RollbackAsync();
-	    Console.WriteLine("Error trying to vote");
+	    Console.WriteLine("Error trying to vote: ", ex);
 	}
 
         IClientProxy proxy;
@@ -68,7 +67,7 @@ public class VoteDateHub : Hub
 	
 
 	await proxy.SendAsync("ReceiveVoteUpdate",
-			      new { Votes = currentDate.Votes,
+			      new { Votes = currentDate!.Votes,
 			            DateId = vote.DateId});
 
 	return;

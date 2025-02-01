@@ -1,33 +1,42 @@
 using Npgsql;
-
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Movies.Options;
+
 
 namespace Movies.EntityModels;
 
 public static class MoviesDataContextExtension
 {
-   public static IServiceCollection AddMoviesDataContext(this IServiceCollection services, string? connectionString = null)
+    public static IServiceCollection AddMoviesDataContext(
+	this IServiceCollection services,
+	string? connectionString = null)
    {
-        if (connectionString is null)
-        {
-            NpgsqlConnectionStringBuilder builder = new();
-            builder.Host = "localhost";
-            builder.Port = 5432;
-            builder.Database = "Movies";
-            builder.Username = Environment.GetEnvironmentVariable("SQL_USR");
-            builder.Password = Environment.GetEnvironmentVariable("SQL_PWD");
-            connectionString = builder.ConnectionString; 
-        }
+       services.AddDbContext<MoviesDataContext>((serviceProvider, options) =>
+       {
+	   var databaseOptions = serviceProvider
+	       .GetRequiredService<IOptions<DatabaseOptions>>().Value;
+       
+	   if (connectionString is null)
+	   {
+	       NpgsqlConnectionStringBuilder builder = new()
+	       {
+		   Host = "localhost",
+		   Port = 5432,
+		   Database = "Movies",
+		   Username = databaseOptions.Username,
+		   Password = databaseOptions.Password
+	       };
+	       connectionString = builder.ConnectionString; 
+	   }
+	   
+	   options.UseNpgsql(connectionString);
 
-        services.AddDbContext<MoviesDataContext>(options =>{
-            options.UseNpgsql(connectionString);
-
-	    options.LogTo(MoviesDataContextLogger.WriteLine, new[]
-	        { Microsoft.EntityFrameworkCore
-		  .Diagnostics.RelationalEventId.CommandExecuting});
-	    
+	   options.LogTo(MoviesDataContextLogger.WriteLine, new[]
+	       { Microsoft.EntityFrameworkCore
+	       .Diagnostics.RelationalEventId.CommandExecuting});	    
 	});
-        return services;
+       return services;
    } 
 }

@@ -1,4 +1,4 @@
-@using Movies.Chat.Models
+@using Movies.Models
 @using Microsoft.AspNetCore.Identity
 @inject UserManager<IdentityUser> UserManager
 @{
@@ -8,18 +8,20 @@
   <h1>@ViewData["Title"]</h1>
   <hr />
   <div class="row">
-   <div class="col">
+      <div class="col">
+	  <form>
       <h2>Send Message</h2>
       <div class="mb-3">
-        <input type="text" class="form-control" id="from" value="@User.Identity?.Name" hidden/>
+	      <input type="text" class="form-control" id="from" value="@User.Identity?.Name" hidden/>
       </div>
      <div class="mb-3">
         <label for="message" class="form-label">Message</label>
         <input type="text" class="form-control" id="message" maxlength="400"/>
       </div>
       <div class="mb-3">
-        <input type="button" class="form-control" id="sendButton" value="Send Message" />
+        <input type="submit" class="form-control" id="sendButton" value="Send Message" />
       </div>
+	  </form>
     </div>
   </div>
   <div class="row">

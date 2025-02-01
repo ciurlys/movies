@@ -7,10 +7,20 @@
 {
     @foreach (Comment comment in Model)
     {
+	@if (comment.IsSeen || comment.UserId == UserManager.GetUserId(User))
+	{
         <div class="comment" data-comment-id="@comment.CommentId">
-            <h3>@comment.Title by @((await UserManager.FindByIdAsync(comment.UserId))?.UserName)</h3>
+            <h3>@comment.Title by @((await UserManager.FindByIdAsync(comment.UserId!))?.UserName)</h3>
             <p>@comment.Description</p>
         </div>
+	}
+	    else
+	    {
+        <div class="comment" data-comment-id="@comment.CommentId">
+            <h3>UNREAD UNREAD UNREAD  @comment.Title by @((await UserManager.FindByIdAsync(comment.UserId!))?.UserName)</h3>
+            <p>@comment.Description</p>
+        </div>
+	    }
         @if (comment.UserId == UserManager.GetUserId(User)){
             <a class="btn btn-primary" asp-controller="Comment" asp-action="EditComment" asp-route-id="@comment.CommentId">Edit</a>
             <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="@comment.CommentId">Delete</button>
@@ -74,23 +84,9 @@ else
 <script defer>
 const movieId = document.querySelector('.comments-header').getAttribute('data-movie-id');
 
-const comments = document.querySelectorAll('.comment');
-
-comments.forEach(function(comment) {
-    console.log(comment.getAttribute('data-comment-id'));
-    fetch(`/Comment/IsCommentSeen?commentId=${comment.getAttribute('data-comment-id')}`)
-        .then(response => response.json())
-        // Returns 1 if not seen, else 0
-        .then(IsSeen => {
-            if (IsSeen > 0) {
-                comment.style.color = "red";
-            }
-        });
-});
-
-     fetch(`/Comment/MarkCommentsAsRead?movieId=${movieId}`)
-	.then(response => response.json())
-	.then(readCount => {
-			console.info(`${readCount} entries marked as read.`);
-	});
+ fetch(`/Comment/MarkCommentsAsRead?movieId=${movieId}`)
+     .then(response => response.json())
+     .then(readCount => {
+	 console.info(`${readCount} entries marked as read.`);
+ });
 </script>
