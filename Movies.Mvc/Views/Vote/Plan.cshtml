@@ -1,9 +1,29 @@
+@{
+    Layout = "~/Views/Shared/_EntryLayout.cshtml";
+}
+<div class="d-flex justify-content-center align-items-center main-block">
+    <img src="~/covers/@Model.MovieImagePath" alt="@Model.MovieTitle cover" style="max-width: 300px;" />
 
 
-<h1>The current plan:</h1>
+	<h2>@Model.MovieTitle</h2>
 
-<h2><img src="~/covers/@Model.MovieImagePath" alt="@Model.MovieTitle cover" style="max-width: 200px;" /> </h2>
-
-<h2>@Model.MovieTitle</h2>
-
-<h2>DATE: @Model.Date </h2>
+	<h2>DATE: @Model.Date </h2>
+	<div>
+	    
+<style>
+ body{
+     background-image: url('../../assets/Architects_Dream.jpg') !important;
+     background-size: cover;
+     background-position: center center;
+     background-attachment: fixed;
+     height: 100vh;
+     margin: 0;
+ }
+ h2{
+     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+     color: black;
+	}
+ .main-block{
+     flex-direction: column;
+	}
+</style>

@@ -1,33 +1,87 @@
 @model HomeMovieViewModel
 
-    <form method="get" asp-controller="Find" asp-action="Find" >
-    <input type="text" name="title"  value="@ViewContext.HttpContext.Request.Query["title"]"/>
-    <input type="submit">
-    </form>
+<div class="form-container">
+<form method="get" asp-controller="Find" asp-action="Find">
+    <input type="text" name="title" value="@ViewContext.HttpContext.Request.Query["title"]" />
+    <button class="btn btn-primary" type="submit">Search</button>
+</form>
+</div>
 
-@if ((bool)ViewData["activeQuery"]!){
-
+@if ((bool)ViewData["activeQuery"]!) {
     <div class="movie-details">
-    <h1>@Model.Movie!.Title</h1>
-    <p><strong>Director:</strong> @Model.Movie.Director</p>
-    <p><strong>Release Date:</strong> @Model.Movie.ReleaseDate.Year</p>
-    <p><strong>Description:</strong> @Model.Movie.Description</p>
-    @if (!string.IsNullOrEmpty(@Model.Movie.ImagePath))
-    {
-        <img src="@Model.Movie.ImagePath" alt="@Model.Movie.Title" style="max-width:300px;" />
-    }
-    </div>
+	<h1>@Model.Movie!.Title</h1>
+        <p><strong>Director:</strong> @Model.Movie.Director</p>
+        <p><strong>Release Date:</strong> @Model.Movie.ReleaseDate.Year</p>
+        <p><strong>Description:</strong> @Model.Movie.Description</p>
+        @if (!string.IsNullOrEmpty(@Model.Movie.ImagePath))
+        {
+            <img src="@Model.Movie.ImagePath" alt="@Model.Movie.Title" style="max-width:300px;" />
+            }
 
-    <form method="post" enctype="multipart/form-data" asp-controller="Find" asp-action="AddFound">
-        @Html.AntiForgeryToken()
-        <div class="add-input"><input hidden asp-for="Movie!.Title" placeholder="Movie title">
-        <span asp-validation-for="Movie!.Title" class="text-danger"></span>
-        </div>
-        <div><input hidden asp-for="Movie!.Director" placeholder="Movie director"></div>
-        <div><input hidden asp-for="Movie!.ReleaseDate" placeholder="Movie release date" type="date" min="1888-01-01" ></div>
-        <div><textarea hidden asp-for="Movie!.Description" placeholder="Movie description" rows="7" style="resize: both; min-width: 500px;"></textarea></div>
-        <div><input type="checkbox" value="true" asp-for="Movie!.Seen" /> Mark as seen</div>
-        <div><input type="text" asp-for="Movie!.ImagePath" hidden></div>
-        <input type="submit" value="Insert" class="btn btn-outline-primary">
-    </form>
-}
+            <form method="post" enctype="multipart/form-data" asp-controller="Find" asp-action="AddFound">
+		@Html.AntiForgeryToken()
+
+		<input hidden asp-for="Movie!.Title" />
+		<input hidden asp-for="Movie!.Director" />
+		<input hidden asp-for="Movie!.ReleaseDate" type="date" min="1888-01-01" />
+		<textarea hidden asp-for="Movie!.Description" rows="7" style="resize: both; min-width: 500px;"></textarea>
+		<input hidden asp-for="Movie!.ImagePath" />
+
+		<div class="form-check mb-2">
+                    <input type="checkbox" asp-for="Movie!.Seen" value="true" id="Movie_Seen" />
+                    <label class="form-check-label" for="Movie_Seen">Mark as seen</label>
+		</div>
+
+		<button type="submit" class="btn btn-primary">Add</button>
+            </form>
+    </div>
+		}
+
+
+
+    
+    <style>
+     body{
+	 background-image: url('../../assets/Pantheon-and-other-monuments.jpg') !important;
+	 background-size: cover;
+	 background-position: center center;
+	 background-attachment: fixed;
+	 height: 100vh;
+	 margin: 0;
+		}
+     h2{
+	 text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+		}
+     input{
+	 box-sizing: content-box;
+	 min-height: 30px;
+		}
+     button{
+	 box-sizing: content-box;
+	 min-height: 22px;
+	 margin-bottom: 5px;
+		}
+     .container{
+	 color: black;
+		}
+     #Movie_Seen{
+	 accent-color: #dbb721;
+	 vertical-align: -moz-middle-with-baseline;
+		}
+     .movie-details{
+	 display: flex;
+	 flex-direction: column;
+	 align-items: center;
+	 font-size: 1.4rem;
+		}
+     .form-container {
+	 display: flex;
+	 justify-content: center;
+	 align-items: center;
+	 margin: 20px 0;
+		}
+     .form-check{
+	 padding-left: 0;
+		}
+     
+    </style>

@@ -8,17 +8,37 @@ html {
   }
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
 html {
   position: relative;
   min-height: 100%;
 }
-
 body {
-  margin-bottom: 60px;
+    margin-bottom: 60px;
+    font-family: 'EB Garamond', sans-serif !important;
+    --bs-body-font-family: "EB Garamond";
+    background-color: #450a0e;
+    border: #ffd93d;
+    color: white;
+}
+.btn-primary{
+    background-color: #ffd93d;
+    color: #450a0e;
+    border: black;
+    border-radius: 2px;
+}
+.btn-primary:hover{
+    background-color: #dbb721;
+    color: #450a0e;
+    border-radius: 2px;
+}
+
+.form-check-input:checked{
+    background-color: #dbb721;
+    border: 2px solid #dbb721;    
+}
+.form-check-input:focus{
+    outline: none;
+    box-shadow: 0 0 2px 2px #dbb721 !important;
 }
 
 .form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
@@ -30,9 +50,15 @@ body {
   text-align: start;
 }
 input {
-  margin-bottom: 10px;
+    margin-bottom: 10px;
+    border-radius: 2px;
+}
+input:focus, select:focus{
+    outline: none;
+    box-shadow: 0 0 2px 2px #dbb721 !important;
 }
 textarea {
   margin-bottom: 10px;
   min-width: 500px;
 }
+

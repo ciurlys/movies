@@ -1,6 +1,11 @@
 ﻿nav{
     box-sizing: content-box;
     min-width: 40px;
+    max-height:40px;
+}
+
+:root {
+    --bs-nav-link-font-size: 1.5rem;
 }
 
 a.navbar-brand {
@@ -8,9 +13,8 @@ a.navbar-brand {
   text-align: center;
   word-break: break-all;
 }
-
 a {
-  color: #0077cc;
+  color: white;
 }
 
 .btn-primary {
@@ -49,42 +53,18 @@ button.accept-policy {
   line-height: 60px;
 }
 
-:root {
-    --bs-nav-link-font-size: 1.5rem;
+body{
+    margin-bottom: 60px;
+    background-color: #450a0e;
+    border: #ffd93d;
+    color: white;
+    background-image: url('../../assets/Architects_Dream.jpg') !important;
+    background-size: cover;
+    background-position: center center;
+    background-attachment: fixed;
+    height: 100vh;
+    margin: 0; 
 }
-
-a.navbar-brand {
-  white-space: normal;
-  text-align: center;
-  word-break: break-all;
-}
-a {
-  color: #0077cc;
-}
-
-.btn-primary {
-  color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
-}
-
-.nav-pills .nav-link.active, .nav-pills .show > .nav-link {
-  color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
-}
-
-.border-top {
-  border-top: 1px solid #e5e5e5;
-}
-.border-bottom {
-  border-bottom: 1px solid #e5e5e5;
-}
-
-.box-shadow {
-  box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
-}
-
 .btn-primary{
     background-color: #ffd93d;
     color: #450a0e;
@@ -121,9 +101,8 @@ header{
 .navbar-nav{
     --bs-nav-link-color: white;
     --bs-nav-link-hover-color: #dbb721;
-    --bs-nav-link-font-size: 1.5rem;
+    --bs-nav-link-font-size: 1.8rem;
 }
 nav{
     margin-bottom: 3rem;
-    max-height: 40px;
 }

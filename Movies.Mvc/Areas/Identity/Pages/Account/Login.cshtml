@@ -3,12 +3,16 @@
 @{
     ViewData["Title"] = "Log in";
 }
-<div class="row">
-    <div class="col-md-4">
+@{
+    Layout = "~/Views/Shared/_EntryLayout.cshtml";
+}
+
+<div class="d-flex justify-content-center align-items-center">
+    <div class="col-md-4" >
         <section>
             <form id="account" method="post">
-                <h2>Use a local account to log in.</h2>
-                <hr />
+                <h2>Login</h2>
+		<hr />
                 <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
                 <div class="form-floating mb-3">
                     <input asp-for="Input.UserName" class="form-control" autocomplete="username" aria-required="true" />
@@ -37,3 +41,16 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }
+    <style>
+     body{
+	 background-image: url('../../assets/Architects_Dream.jpg') !important;
+	 background-size: cover;
+	 background-position: center center;
+	 background-attachment: fixed;
+	 height: 100vh;
+	 margin: 0;
+     }
+     h2{
+	 text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+     }
+    </style>
