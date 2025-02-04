@@ -5,21 +5,16 @@
   ViewData["Title"] = "Chat";
 }
 <div class="container">
-  <h1>@ViewData["Title"]</h1>
-  <hr />
   <div class="row">
       <div class="col">
 	  <form>
-      <h2>Send Message</h2>
+      <h2>Send a Message</h2>
       <div class="mb-3">
 	      <input type="text" class="form-control" id="from" value="@User.Identity?.Name" hidden/>
       </div>
-     <div class="mb-3">
-        <label for="message" class="form-label">Message</label>
-        <input type="text" class="form-control" id="message" maxlength="400"/>
-      </div>
-      <div class="mb-3">
-        <input type="submit" class="form-control" id="sendButton" value="Send Message" />
+      <div class="d-flex gap-2">
+      <input type="text" class="form-control" id="message" maxlength="400"/>
+      <input class="btn-primary" type="submit" class="form-control" id="sendButton" value="Send" style="min-width:5rem" />
       </div>
 	  </form>
     </div>
@@ -27,10 +22,26 @@
   <div class="row">
     <div class="col">
       <hr />
-      <h2>Messages received</h2>
-      <ul id="messages"></ul>
+         <ul id="messages"></ul>
     </div>
   </div>
 </div>
 <script src="~/js/signalr/dist/browser/signalr.js"></script>
 <script src="~/js/chat.js"></script>
+<style>
+ body{
+     background-image: url('../../assets/View-of-the-Roman-Forum.jpg') !important;
+     background-size: cover;
+     background-position: center center;
+     background-attachment: fixed;
+     height: 100vh;
+     margin: 0;
+	      }
+ h2{
+     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+	      }
+ #messages{
+     color: black;
+     font-size: 1.5rem;
+	      }
+</style>

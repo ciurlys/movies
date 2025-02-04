@@ -14,9 +14,7 @@ document.addEventListener("DOMContentLoaded", function () {
     );
     listElement.dataset.votes = updatedVotes.votes;
 
-    if (voteElement) {
       voteElement.textContent = `${updatedVotes.votes} votes.`;
-    }
 
     var allVoteElements = Array.from(
       document.querySelectorAll(".concrete-date"),
@@ -35,7 +33,15 @@ document.addEventListener("DOMContentLoaded", function () {
     const dateId = button.dataset.dateId;
 
     button.addEventListener("click", function () {
-      button.style.color = button.style.color === "red" ? "green" : "red";
+	if (button.classList.contains('btn-success')) {
+	    button.classList.remove('btn-success');
+	    button.classList.add('btn-danger');
+	    button.textContent = 'Revoke';
+	} else {
+	    button.classList.remove('btn-danger');
+	    button.classList.add('btn-success');
+	    button.textContent = 'Vote'; 
+	}
 
       voteConnection
         .invoke("SendVote", { DateId: parseInt(dateId) })
@@ -61,17 +67,10 @@ document.addEventListener("DOMContentLoaded", function () {
     var time = new Date(received.proposedDate);
     var day = time.getDate();
 
-    var formattedDate = time.toLocaleString("en-US", {
-      year: "numeric",
-      month: "numeric",
-      day: "numeric",
-      hour: "numeric",
-      minute: "numeric",
-      second: "numeric",
-      hour12: true,
-    });
+      var formattedDate = formatDate(time);
 
-    var li = document.createElement("li");
+      var li = document.createElement("li");
+      li.style.marginBottom = "16px";
     li.dataset.day = day;
     li.dataset.votes = 0;
     li.className = "concrete-date";
@@ -81,18 +80,26 @@ document.addEventListener("DOMContentLoaded", function () {
     firstSpan.textContent = formattedDate + " has ";
 
     var secondSpan = document.createElement("span");
-    secondSpan.className = "vote-count";
+    secondSpan.className = "vote-count fw-bold";
     secondSpan.textContent = "0 votes.";
 
     var button = document.createElement("button");
-    button.className = "vote-button";
+    button.className = "vote-button btn btn-success";
     button.dataset.dateId = received.dateId;
     button.textContent = "Vote";
-    button.style.color = "green";
       
     button.addEventListener("click", function () {
-      button.style.color = button.style.color === "red" ? "green" : "red";
 
+	if (button.classList.contains('btn-success')) {
+	    button.classList.remove('btn-success');
+	    button.classList.add('btn-danger');
+	    button.textContent = 'Revoke';
+	} else {
+	    button.classList.remove('btn-danger');
+	    button.classList.add('btn-success');
+	    button.textContent = 'Vote'; 
+	}
+	
       voteConnection
         .invoke("SendVote", { DateId: parseInt(received.dateId) })
         .catch((err) => {
@@ -131,3 +138,13 @@ document.addEventListener("DOMContentLoaded", function () {
       event.preventDefault();
     });
 });
+
+function formatDate(date) {
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day = date.getDate().toString().padStart(2, '0');
+  const hour = date.getHours().toString().padStart(2, '0');
+  const minute = date.getMinutes().toString().padStart(2, '0');
+  
+  return `${year}/${month}/${day} ${hour}:${minute}`;
+}

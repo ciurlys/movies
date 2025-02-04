@@ -8,4 +8,5 @@ public interface IVoteRepository
     Task<List<Movie>> GetMovies(string userId);
     Task<VoteDate?> GetTopDate();
     Task<Movie?> GetTopMovie();
+    Task<int> Reset();
 }

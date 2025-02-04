@@ -36,10 +36,17 @@ document.addEventListener("DOMContentLoaded", function () {
   document.querySelectorAll(".movie-vote-button").forEach((button) => {
     const movieId = button.dataset.movieId;
 
-    button.addEventListener("click", function () {
-      button.style.color == "red"
-        ? (button.style.color = "green")
-        : (button.style.color = "red");
+      button.addEventListener("click", function () {
+	  
+	if (button.classList.contains('btn-success')) {
+	    button.classList.remove('btn-success');
+	    button.classList.add('btn-danger');
+	    button.textContent = 'Revoke';
+	} else {
+	    button.classList.remove('btn-danger');
+	    button.classList.add('btn-success');
+	    button.textContent = 'Vote'; 
+	}
 
       connection
         .invoke("SendMovieVote", {

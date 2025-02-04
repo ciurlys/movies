@@ -45,7 +45,7 @@ public class VoteController : Controller
 	
 	return View(model);
     }
-
+    [HttpGet]
     [AllowAnonymous]
     public async Task<IActionResult> Plan()
     {
@@ -55,7 +55,7 @@ public class VoteController : Controller
 	if (topDate is null)
 	{
 		_logger.LogWarning("Top date {TopDate} not found", topDate);
-		return NotFound();
+		return View(new {Date = (DateTime?)null});
 	}
 
 	var topMovie = await _voteRepository.GetTopMovie();
@@ -69,12 +69,20 @@ public class VoteController : Controller
 
 	var model = new
 	{
+	    MovieId = topMovie.MovieId,
 	    Date = topDate.ProposedDate,
 	    MovieTitle = topMovie.Title,
 	    MovieImagePath = topMovie.ImagePath
 	};
 
 	return View(model);
+    }
+    [HttpPost]
+    public async Task<IActionResult> ResetPlan()
+    {
+	await _voteRepository.Reset();
+
+	return RedirectToAction(nameof(Plan));
     }
     
 }

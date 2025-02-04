@@ -21,7 +21,7 @@ connection.start().then(function () {
                 document.getElementById("messages").append(li);
                 
                 var spanTime = document.createElement("span");
-                spanTime.textContent = `Sometime before - `;
+                spanTime.textContent = `- `;
                 li.appendChild(spanTime);
         
                 var spanAuthor = document.createElement("span");
@@ -73,6 +73,12 @@ document.getElementById("sendButton").addEventListener("click", function (event)
         inputMessage.placeholder = "Max 400 characters";
         return;
     }
+    if (inputMessage.value.length === 0){
+	inputMessage.placeholder = "Enter your message...";
+	event.preventDefault();
+	return;
+    }
+    
     var messagemodel = {
         from: document.getElementById("from").value,
         message: inputMessage.value

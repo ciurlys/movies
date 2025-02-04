@@ -1,29 +1,44 @@
-@{
-    Layout = "~/Views/Shared/_EntryLayout.cshtml";
-}
-<div class="d-flex justify-content-center align-items-center main-block">
-    <img src="~/covers/@Model.MovieImagePath" alt="@Model.MovieTitle cover" style="max-width: 300px;" />
-
-
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<IdentityUser> UserManager
+    @{
+	var user = await UserManager.FindByNameAsync(User.Identity!.Name!);
+	var isAdmin = user != null && await UserManager.IsInRoleAsync(user, "Administrators");
+	Layout = "~/Views/Shared/_EntryLayout.cshtml";
+    }
+    @if (Model.Date is not null)
+    {
+	<div class="d-flex justify-content-center align-items-center main-block">
+	<img src="~/covers/@Model.MovieImagePath" alt="@Model.MovieTitle cover" style="max-width: 300px;" />
 	<h2>@Model.MovieTitle</h2>
-
-	<h2>DATE: @Model.Date </h2>
-	<div>
-	    
-<style>
- body{
-     background-image: url('../../assets/Architects_Dream.jpg') !important;
-     background-size: cover;
-     background-position: center center;
-     background-attachment: fixed;
-     height: 100vh;
-     margin: 0;
- }
- h2{
-     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-     color: black;
-	}
- .main-block{
-     flex-direction: column;
-	}
-</style>
+	<h2>@Model.Date.ToString("yyyy/MM/dd HH:mm")</h2>
+	@if (isAdmin)
+    {
+        <form method="post" action="ResetPlan">
+	<input type="submit" value="Reset" class="btn-primary"/>
+        </form>
+    }
+	</div>
+    }
+    else
+    {
+	<div class="d-flex justify-content-center align-items-center main-block">	
+	<h2>The date is not yet set</h2>
+	</div>
+    }
+    <style>
+     body{
+	 background-image: url('../../assets/Architects_Dream.jpg') !important;
+	 background-size: cover;
+	 background-position: center center;
+	 background-attachment: fixed;
+	 height: 100vh;
+	 margin: 0;
+     }
+     h2{
+	 text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+	 color: black;
+     }
+     .main-block{
+	 flex-direction: column;
+     }
+    </style>

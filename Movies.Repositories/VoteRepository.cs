@@ -75,4 +75,17 @@ public class VoteRepository : IVoteRepository
 	    .Where(m => !m.Seen)
 	    .FirstOrDefaultAsync();	
     }
+
+
+    //Will set the movie as seen and delete all proposed dates
+    public async Task<int> Reset()
+    {
+	var movie = await GetTopMovie();
+	movie!.Seen = true;
+
+	var dates = _db.Dates;
+	_db.Dates.RemoveRange(dates);
+
+	return await _db.SaveChangesAsync();
+    }
 }

@@ -3,83 +3,101 @@
 @using Movies.EntityModels
 @inject UserManager<IdentityUser> UserManager
 
-    <h1 class="main-h1">Here we vote</h1>
+    <div class="d-flex justify-content-center align-items-center">
+	<div class="text-center">
+	    <h1>Propose Date</h1>
 
-    <div>
-	<h1>Propose Date</h1>
-
-	<div class="mb-3">
-            <label for="date" class="form-label">Propose date:</label>
-            <input type="date" class="form-control" id="date" />
-	</div>
-	<div class="mb-3">
-            <input type="button" class="form-control" id="sendButton" value="Propose date" />
+	    <div class="mb-3">
+		<input type="datetime-local" class="form-control" id="date" />
+	    </div>
+	    <div class="mb-3">
+		<input type="button" class="btn btn-primary form-control" id="sendButton" value="Propose Date" />
+	    </div>
 	</div>
     </div>
+    
+    <div class="d-flex justify-content-center gap-4 p-4">
+	<div class="card p-3 shadow-sm" style="min-width: 300px; max-width: 400px; opacity: 0.9;">
+	    <h1>Dates</h1>
+	    @if (Model is not null)
+	    {
+	    <ul class="date-list list-unstyled">
+		@foreach (var date in Model.Dates)
+		{
+		<li data-day="@date.ProposedDate.Day" 
+		    data-votes="@date.Votes" 
+		    class="concrete-date mb-3" 
+		    data-date-dateid="@date.VoteDateId">
 
-    <div>
-	<h1>Dates</h1>
-	@if (Model is not null)
-	{
-        <ul class="date-list">
-            @foreach (var date in Model.Dates)
-            {
-                <li data-day="@date.ProposedDate.Day" 
-                    data-votes="@date.Votes" 
-                    class="concrete-date" 
-                    data-date-dateid="@date.VoteDateId">
-
-                    <span>@date.ProposedDate has</span>
-                    <span class="vote-count">@date.Votes votes.</span>
+		    <span>@date.ProposedDate.ToString("yyyy/MM/dd HH:mm") has</span>
+		    <span class="vote-count fw-bold">@date.Votes votes.</span>
+		    
 		    @if (!date.HasVoted)
 		    {
-		    <button style="color: green" class="vote-button btn-danger" data-date-id="@date.VoteDateId">Vote</button>
+		    <button style="margin-left:auto" class="vote-button btn btn-success" data-date-id="@date.VoteDateId">Vote</button>
 		    }
 		    else
 		    {
-		    <button style="color: red" class="vote-button btn-success" data-date-id="@date.VoteDateId">Vote</button>		    
+		    <button style="margin-left:auto" class="vote-button btn btn-danger" data-date-id="@date.VoteDateId">Revoke</button>		    
 		    }
-                </li>
+		</li>
 		    }
-        </ul>
+	    </ul>
 		    }
 		    else
 		    {
-        <div>We have no dates</div>
+	    <div>We have no dates</div>
 		    }
+	</div>
 
-	<h1>Movies</h1>
-	@if (Model is not null)
+	<div class="card p-3 shadow-sm" style="min-width: 300px; max-width: 400px; opacity: 0.9;">
+	    <h1>Movies</h1>
+	    @if (Model is not null)
 		    {
-        <ul class="movie-list">
-            @foreach (var movie in Model.Movies)
-            {
-                <li data-votes="@movie.Votes" 
-                    class="concrete-movie" 
-                    data-movie-id="@movie.MovieId">
+	    <ul class="movie-list list-unstyled">
+		@foreach (var movie in Model.Movies)
+		{
+		<li data-votes="@movie.Votes" 
+		    class="concrete-movie mb-3" 
+		    data-movie-id="@movie.MovieId">
 
-                    <span>@movie.Title has</span>
-                    <span class="movie-vote-count">@movie.Votes votes.</span>
+		    <span>@movie.Title has</span>
+		    <span class="movie-vote-count fw-bold">@movie.Votes votes.</span>
+		    
 		    @if (!movie.HasVoted)
 		    {
-                    <button style="color: green" class="movie-vote-button btn-danger" data-movie-id="@movie.MovieId">Vote</button>
+		    <button class="movie-vote-button btn btn-success" data-movie-id="@movie.MovieId">Vote</button>
 		    }
 		    else
 		    {
-                    <button style="color: red" class="movie-vote-button btn-success" data-movie-id="@movie.MovieId">Vote</button>
+		    <button class="movie-vote-button btn btn-danger" data-movie-id="@movie.MovieId">Revoke</button>
 		    }
-                </li>
+		</li>
 		    }
-        </ul>
+	    </ul>
 		    }
 		    else
 		    {
-        <div>We have no movies</div>
+	    <div>We have no movies</div>
 		    }
+	</div>
     </div>
 
     @section Scripts {
-    <script src="~/js/signalr/dist/browser/signalr.js"></script>
+	<script src="~/js/signalr/dist/browser/signalr.js"></script>
     <script src="~/js/vote-date.js"></script>
     <script src="~/js/vote-movie.js"></script>
     }
+    <style>
+     body{
+	 background-image: url('../../assets/Cicero-denounces-Catiline.png') !important;
+	 background-size: cover;
+	 background-position: center center;
+	 background-attachment: fixed;
+	 height: 100vh;
+	 margin: 0;
+     }
+     h1{
+	 text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+     }
+    </style>
