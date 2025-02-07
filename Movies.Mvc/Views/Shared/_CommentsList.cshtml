@@ -2,9 +2,10 @@
 @using Microsoft.AspNetCore.Identity
 @inject UserManager<IdentityUser> UserManager
 
-<h2 class="comments-header" data-movie-id="@Model[0].MovieId">Comments</h2>
-@if(Model is not null)
-{
+
+    @if (Model != null && Model.Count !=0) 
+    {
+	<h2 class="comments-header" data-movie-id="@Model[0].MovieId">Comments</h2>    
     @foreach (Comment comment in Model)
     {
 	@if (comment.IsSeen || comment.UserId == UserManager.GetUserId(User))
@@ -32,9 +33,9 @@ else
     <p>No comments.</p>
 }
 
-@*HTML MODAL FOR DELETION*@
+    @*HTML MODAL FOR DELETION*@
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog" style="color:black;">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
@@ -82,11 +83,12 @@ else
 
 @* JAVASCRIPT FOR MARKING UNREAD COMMENTS *@
 <script defer>
-const movieId = document.querySelector('.comments-header').getAttribute('data-movie-id');
+ const movieId = document.querySelector('.comments-header').getAttribute('data-movie-id');
 
  fetch(`/Comment/MarkCommentsAsRead?movieId=${movieId}`)
      .then(response => response.json())
      .then(readCount => {
 	 console.info(`${readCount} entries marked as read.`);
  });
+
 </script>

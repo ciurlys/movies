@@ -11,7 +11,7 @@ namespace Movies.Mvc.Controllers;
 [Authorize]
 public class HomeController : Controller
 {
-    private const int ITEMS_PER_PAGE = 10;
+    private const int ITEMS_PER_PAGE = 9;
     private readonly ILogger<HomeController> _logger;
     private readonly IMovieRepository _movieRepository;
     private readonly UserManager<IdentityUser> _userManager;    

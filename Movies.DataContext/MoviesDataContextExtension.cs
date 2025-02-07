@@ -2,7 +2,6 @@ using Npgsql;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using Movies.Options;
 
 
 namespace Movies.EntityModels;
@@ -15,9 +14,7 @@ public static class MoviesDataContextExtension
    {
        services.AddDbContext<MoviesDataContext>((serviceProvider, options) =>
        {
-	   var databaseOptions = serviceProvider
-	       .GetRequiredService<IOptions<DatabaseOptions>>().Value;
-       
+	          
 	   if (connectionString is null)
 	   {
 	       NpgsqlConnectionStringBuilder builder = new()
@@ -25,9 +22,10 @@ public static class MoviesDataContextExtension
 		   Host = "localhost",
 		   Port = 5432,
 		   Database = "Movies",
-		   Username = databaseOptions.Username,
-		   Password = databaseOptions.Password
+		   Username = Environment.GetEnvironmentVariable("SQL_USR"),
+		   Password = Environment.GetEnvironmentVariable("SQL_PWD")
 	       };
+	       
 	       connectionString = builder.ConnectionString; 
 	   }
 	   

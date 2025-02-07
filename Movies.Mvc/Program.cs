@@ -23,6 +23,13 @@ CultureInfo.DefaultThreadCurrentCulture = defaultCulture;
 CultureInfo.DefaultThreadCurrentUICulture = defaultCulture;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.Configure<OmdbApiOptions>(
+    builder.Configuration.GetSection(OmdbApiOptions.SectionName));
+
+builder.Services.Configure<DatabaseOptions>(
+    builder.Configuration.GetSection(DatabaseOptions.SectionName));
+
+
 builder.Services.AddApplicationDbContext();
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();  //Database for storing Users
 builder.Services.AddMoviesDataContext(); //Database for storing Movies
@@ -39,11 +46,7 @@ builder.Services.AddHttpClient("OMDB", client =>
 
 builder.Services.AddAutoMapper(typeof(MovieMappingProfile));
 
-builder.Services.Configure<OmdbApiOptions>(
-    builder.Configuration.GetSection(OmdbApiOptions.SectionName));
 
-builder.Services.Configure<DatabaseOptions>(
-    builder.Configuration.GetSection(DatabaseOptions.SectionName));
 
 builder.Services.AddServices();
 builder.Services.AddRepositories();
@@ -133,5 +136,4 @@ app.MapControllerRoute(
 
 app.MapRazorPages()
    .WithStaticAssets();
-
 app.Run();

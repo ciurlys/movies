@@ -6,11 +6,11 @@ namespace Movies.EntityModels;
 public partial class MoviesDataContext : DbContext
 {
     public MoviesDataContext() { }
-
+    
     public MoviesDataContext(DbContextOptions<MoviesDataContext> options) : base(options)
     {
     }
-    
+
     public DbSet<Movie> Movies { get; set; }
     public DbSet<Comment> Comments { get; set; }
     public DbSet<VoteDate> Dates { get; set; }
@@ -21,6 +21,7 @@ public partial class MoviesDataContext : DbContext
     
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
+
         if (!optionsBuilder.IsConfigured)
         {
             NpgsqlConnectionStringBuilder builder = new();
@@ -30,7 +31,6 @@ public partial class MoviesDataContext : DbContext
             builder.Username = Environment.GetEnvironmentVariable("SQL_USR");
             builder.Password = Environment.GetEnvironmentVariable("SQL_PWD");
             optionsBuilder.UseNpgsql(builder.ConnectionString);
-
 	}
     }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
