@@ -82,7 +82,13 @@ public class VoteRepository : IVoteRepository
     {
 	var movie = await GetTopMovie();
 	movie!.Seen = true;
+	movie!.Votes = 0;
+	//Find the current votes and delete them
 
+	var votesToDelete = _db.UserVotesMovie.Where(v => v.MovieId == movie.MovieId);
+	_db.UserVotesMovie.RemoveRange(votesToDelete);
+	
+	//Delete all dates
 	var dates = _db.Dates;
 	_db.Dates.RemoveRange(dates);
 

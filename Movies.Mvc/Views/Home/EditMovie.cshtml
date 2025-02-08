@@ -1,8 +1,10 @@
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @model HomeMovieViewModel
-
+@{
+    ViewData["Title"] = "Edit movie";
+}
 <div class="row">
-    <p>Edit the details for this movie:</p>
+    <h2>Edit movie</h2>
     <form method="post" enctype="multipart/form-data">
         @Html.AntiForgeryToken()
         <div><input asp-for="Movie!.MovieId" hidden />
@@ -12,13 +14,31 @@
         <div><input asp-for="Movie!.Director" /></div>
         <div><input asp-for="Movie!.ReleaseDate" type="date" /></div>
         <div><textarea asp-for="Movie!.Description" rows="7"></textarea></div>
+	<div><input type="checkbox" class="checkbox" value="true" asp-for="Movie.Seen"/> Mark as seen</div>
         <div><input type="file" class="form-control" accept="image/*" name="ImageFile" style="max-width: 500px;"/></div>
-        <input type="submit" value="Save Changes" class="btn btn-outline-primary" />
-        <div><a href="/Home/Movies" class="btn btn-outline-secondary">Cancel</a></div>
+        <input type="submit" value="Save Changes" class="btn btn-primary" />
+        <div><a href="/Home/Movies" class="btn btn-danger">Cancel</a></div>
     </form>
 </div>
 @section Scripts{
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-}
+    }
+
+    <style>
+     body{
+	 background-image: url('../../assets/Ruins-of-the-Parthenon.jpg') !important;
+	 background-size: cover;
+	 background-position: center center;
+	 background-attachment: fixed;
+	 height: 100vh;
+	 margin: 0;
+     }
+     h2{
+	 text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+     }
+     .checkbox{
+	 accent-color: #dbb721;
+     }
+    </style>

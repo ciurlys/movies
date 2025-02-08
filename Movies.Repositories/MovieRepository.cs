@@ -77,7 +77,7 @@ public class MovieRepository : IMovieRepository
 	movieInDb.Director = movie.Director;
 	movieInDb.ReleaseDate = movie.ReleaseDate;
 	movieInDb.Description = movie.Description;               
- 
+	movieInDb.Seen = movie.Seen;
 	return await _db.SaveChangesAsync();	
     }
 

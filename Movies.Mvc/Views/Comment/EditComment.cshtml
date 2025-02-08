@@ -1,12 +1,26 @@
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @model Movies.EntityModels.Comment
-    <form method="post" asp-controller="Comment" asp-action="EditComment">
+@{
+    ViewData["Title"] = "Edit comment";
+}
+<form method="post" asp-controller="Comment" asp-action="EditComment">
         @Html.AntiForgeryToken()
         <div><input asp-for="@Model.CommentId" hidden /></div>
         <div><input asp-for="@Model.UserId" hidden /></div>
         <div><input asp-for="@Model.MovieId" hidden /></div>
         <div><input asp-for="@Model.Title" /></div>
         <div><textarea asp-for="@Model.Description" rows="7"></textarea></div>
-        <input type="submit" value="Save Changes" class="btn btn-outline-primary" />
-        <div><a href="/Comment/AddComment/@Model.MovieId" class="btn btn-outline-secondary">Cancel</a></div>
+        <input type="submit" value="Save Changes" class="btn btn-primary" />
+        <div><a href="/Comment/AddComment/@Model.MovieId" class="btn btn-danger">Cancel</a></div>
     </form>
+    
+    <style>
+     body {
+	 background-image: url('/assets/Death-of-Socrates.jpg') !important;
+	 background-size: cover;
+	 background-position: center center;
+	 background-attachment: fixed;
+	 height: 100vh;
+	 margin: 0;
+	}
+    </style>

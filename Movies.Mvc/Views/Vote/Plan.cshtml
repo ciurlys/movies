@@ -1,11 +1,14 @@
 @using Microsoft.AspNetCore.Identity
 @inject UserManager<IdentityUser> UserManager
     @{
-	var user = await UserManager.FindByNameAsync(User.Identity!.Name!);
+	ViewData["Title"] = "Agenda";
+	var user = User.Identity?.IsAuthenticated == true
+	? await UserManager.FindByNameAsync(User.Identity!.Name!)
+	: null;
 	var isAdmin = user != null && await UserManager.IsInRoleAsync(user, "Administrators");
 	Layout = "~/Views/Shared/_EntryLayout.cshtml";
     }
-    @if (Model.Date is not null)
+    @if (Model.Date is not null && Model.Votes != 0)
     {
 	<div class="d-flex justify-content-center align-items-center main-block">
 	<img src="~/covers/@Model.MovieImagePath" alt="@Model.MovieTitle cover" style="max-width: 300px;" />
@@ -19,11 +22,17 @@
     }
 	</div>
     }
-    else
+    else if (Model.Date is null)
     {
 	<div class="d-flex justify-content-center align-items-center main-block">	
 	<h2>The date is not yet set</h2>
 	</div>
+    }
+    else if (Model.Votes == 0)
+    {
+	<div class="d-flex justify-content-center align-items-center main-block">	
+	<h2>No movie selected</h2>
+	</div>	
     }
     <style>
      body{

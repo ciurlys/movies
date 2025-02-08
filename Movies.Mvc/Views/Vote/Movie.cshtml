@@ -2,7 +2,9 @@
 @using Microsoft.AspNetCore.Identity
 @using Movies.EntityModels
 @inject UserManager<IdentityUser> UserManager
-
+    @{
+	ViewData["Title"] = "Senate";
+    }
     <div class="d-flex justify-content-center align-items-center">
 	<div class="text-center">
 	    <h1>Propose Date</h1>
@@ -17,7 +19,7 @@
     </div>
     
     <div class="d-flex justify-content-center gap-4 p-4">
-	<div class="card p-3 shadow-sm" style="min-width: 300px; max-width: 400px; opacity: 0.9;">
+	<div class="card p-3 shadow-sm" style="min-width: 300px; max-width: 400px; opacity: 0.9; height: 100%;">
 	    <h1>Dates</h1>
 	    @if (Model is not null)
 	    {
@@ -50,7 +52,7 @@
 		    }
 	</div>
 
-	<div class="card p-3 shadow-sm" style="min-width: 300px; max-width: 400px; opacity: 0.9;">
+	<div class="card p-3 shadow-sm" style="min-width: 300px; max-width: 400px; opacity: 0.9; height: 100%;">
 	    <h1>Movies</h1>
 	    @if (Model is not null)
 		    {
@@ -101,3 +103,5 @@
 	 text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
      }
     </style>
+
+    

@@ -1,5 +1,7 @@
 @model HomeMovieViewModel
-
+@{
+    ViewData["Title"] = "Expedition";
+}
 <div class="form-container">
 <form method="get" asp-controller="Find" asp-action="Find">
     <input type="text" name="title" value="@ViewContext.HttpContext.Request.Query["title"]" />

@@ -4,6 +4,7 @@
 @inject UserManager<IdentityUser> UserManager
 @using Movies.EntityModels;
 @{
+    ViewData["Title"] = "Amphitheatre";
     var user = await UserManager.FindByNameAsync(User.Identity!.Name!);
     var isAdmin = user != null && await UserManager.IsInRoleAsync(user, "Administrators");
 }
@@ -15,7 +16,7 @@
 	<div class="container">
 	    <div class="row">
 		<div class="row text-center align-items-center">
-		    <div class="col-sm">
+		    <div class="col-sm" style="padding-left: 2rem;">
 	@if (isAdmin)
 	{
         <a href="/Home/AddMovie" class="btn btn-primary">Add a movie</a>
@@ -23,7 +24,7 @@
 		</div>
 	@* search by title *@
 
-	<div class="col-sm">
+	<div class="col-sm" style="padding-left: 2rem;">
 	<form method="get" asp-controller="Home" asp-action="Movies" >
             <input type="text" name="title" value='@ViewContext.HttpContext.Request.Query["title"]'/>
 	    <input type="hidden" name="onlySeen" value='@ViewContext.HttpContext.Request.Query["onlySeen"]'/>
@@ -32,7 +33,7 @@
 	</div>
 	
 	@* only show seen movies *@
-	<div class="col-sm">
+	<div class="col-sm" style="padding-left: 2rem;">
 	<form method="get" asp-controller="Home" asp-action="Movies">
             @if (ViewData["onlySeen"] != null && (bool)ViewData["onlySeen"]! == true){
 		<button type="submit" class="btn btn-primary" onclick="setOnlySeen(event)" name="onlySeen">
@@ -59,7 +60,7 @@
 		{
 		@foreach (Movie movie in Model.Movies)
 		{
-                <div class="col d-flex justify-content-center">
+                <div style="opacity: 0.85;" class="col d-flex justify-content-center">
                     <div class="card h-100 shadow-sm p-2" style="max-width: 18rem;">
                         <div class="d-flex justify-content-center p-3">
                             <img class="card-img-top" src="~/covers/@(string.IsNullOrWhiteSpace(movie.ImagePath) ? "missing.jpg" : movie.ImagePath)" 
@@ -78,15 +79,18 @@
                                        }
                                        else
                                        {
-                                    <a class="btn btn-warning btn-sm" data-bs-toggle="comment" data-id="@movie.MovieId" 
-                                       asp-controller="Comment" asp-action="AddComment" asp-route-id="@movie.MovieId">
-                                        Comment (@movie.UnreadCommentCount)
+                                    <a class="btn btn-warning btn-sm position-relative" data-bs-toggle="comment" data-id="@movie.MovieId" 
+					    asp-controller="Comment" asp-action="AddComment" asp-route-id="@movie.MovieId">
+                                        Comment
+					<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+					    @movie.UnreadCommentCount
+					</span>
                                     </a>
 					}
 
                                     @if (isAdmin)
 					{
-                                    <a class="btn btn-primary btn-sm" asp-controller="Home" asp-action="EditMovie" 
+                                    <a class="btn btn-warning btn-sm" asp-controller="Home" asp-action="EditMovie" 
                                        asp-route-id="@movie.MovieId">Edit</a>
 
                                     <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal" 

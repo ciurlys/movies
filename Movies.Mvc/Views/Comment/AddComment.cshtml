@@ -2,27 +2,40 @@
 @using Microsoft.AspNetCore.Identity
 @using Movies.EntityModels
 @inject UserManager<IdentityUser> UserManager
+    @{
+	ViewData["Title"] = "Comments";
+}
 
+    
 @await Html.PartialAsync("_MovieDetails", (Movie)Model.Movie)
 
 <hr />
-<h2>Add your comment: </h2>
-    <form method="post" asp-controller="Comment" asp-action="AddComment">
-        @Html.AntiForgeryToken()
-        <div><input name="MovieId" value="@Model.Movie.MovieId" hidden />
-        <div><input name="UserId" type="text" value="@UserManager.GetUserId(User)" hidden />
+<h2>Add your comment </h2>
+<form method="post" asp-controller="Comment" asp-action="AddComment">
+    @Html.AntiForgeryToken()
+    <div><input name="MovieId" value="@Model.Movie.MovieId" hidden /></div>
+    <div><input name="UserId" type="text" value="@UserManager.GetUserId(User)" hidden /></div>
+    <div>
+        <div style="font-size: 1.3rem;"><label for="Title">Title: </label></div>
+        <input style="opacity: 0.85;" type="text" id="Title" name="Title"/>
+    </div>
+    <div>
+        <div style="font-size: 1.3rem;"><label for="Description">Your deliberations: </label></div>
+        <textarea style="opacity: 0.85;" id="Description" name="Description" rows="5"></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+<hr/>
 
-        <div>
-            <label for="Title">Title: </label>
-            <input type="text" id="Title" name="Title">
-        </div>
-        <div>
-            <label for="Description">Description: </label>
-            <textarea type="text" id="Description" name="Description"></textarea>
-        </div>
+    @await Html.PartialAsync("_CommentsList", (List<Comment>)Model.Comments)
 
-        <button type="submit" class="btn btn-outline-primary">Submit comment</button>
-    </form>
-
-
-@await Html.PartialAsync("_CommentsList", (List<Comment>)Model.Comments)
+    <style>
+     body {
+	 background-image: url('/assets/Death-of-Socrates.jpg') !important;
+	 background-size: cover;
+	 background-position: center center;
+	 background-attachment: fixed;
+	 height: 100vh;
+	 margin: 0;
+     }
+    </style>

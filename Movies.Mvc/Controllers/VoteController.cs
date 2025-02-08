@@ -72,7 +72,8 @@ public class VoteController : Controller
 	    MovieId = topMovie.MovieId,
 	    Date = topDate.ProposedDate,
 	    MovieTitle = topMovie.Title,
-	    MovieImagePath = topMovie.ImagePath
+	    MovieImagePath = topMovie.ImagePath,
+	    Votes = topMovie.Votes
 	};
 
 	return View(model);

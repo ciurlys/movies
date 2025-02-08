@@ -124,6 +124,16 @@ app.UseSession();
 app.MapStaticAssets();
 
 
+app.Use(async (context, next) =>
+{
+    await next(); 
+    if (context.Request.Path.StartsWithSegments("/assets") ||
+	context.Request.Path.StartsWithSegments("/covers"))
+    {
+        context.Response.Headers["Cache-Control"] = "public, max-age=604800, immutable";
+    }
+});
+
 app.MapHub<ChatHub>("/chat");
 app.MapHub<VoteDateHub>("/voteDateHub");
 app.MapHub<VoteMovieHub>("/voteMovieHub");
