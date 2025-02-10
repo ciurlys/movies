@@ -13,8 +13,8 @@ public class MovieMappingProfile : Profile
             .ForMember(dest => dest.Director, opt => opt.MapFrom(src => src.Director))
             .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Plot))
             .ForMember(dest => dest.ImagePath, opt => opt.MapFrom(src => src.Poster))
-            .ForMember(dest => dest.ReleaseDate, opt => 
-	        opt.MapFrom(src => new DateOnly(int.Parse(src.Year ?? "0"), 1, 1)));
+            .ForMember(dest => dest.ReleaseDate, opt =>
+            opt.MapFrom(src => new DateOnly(int.Parse(src.Year ?? "0"), 1, 1)));
     }
 
 

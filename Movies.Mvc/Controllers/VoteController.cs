@@ -9,81 +9,81 @@ namespace Movies.Mvc.Controllers;
 public class VoteController : Controller
 {
     private readonly MoviesDataContext _db;
-	private readonly ILogger<VoteController> _logger;
+    private readonly ILogger<VoteController> _logger;
     private readonly UserManager<IdentityUser> _userManager;
     private readonly IVoteRepository _voteRepository;
     public VoteController(MoviesDataContext db,
-			  UserManager<IdentityUser> userManager,
-			  IVoteRepository voteRepository,
-			  ILogger<VoteController> logger
-			  )
+              UserManager<IdentityUser> userManager,
+              IVoteRepository voteRepository,
+              ILogger<VoteController> logger
+              )
     {
-	_userManager = userManager;
-	_db = db;
-	_voteRepository = voteRepository;
-	_logger = logger;
+        _userManager = userManager;
+        _db = db;
+        _voteRepository = voteRepository;
+        _logger = logger;
     }
 
     public async Task<IActionResult> Movie()
     {
-	var userId = _userManager.GetUserId(User);
-	if (userId is null)
-	{
-		_logger.LogWarning("User Id {UserId} not found", userId);
-		return NotFound();
-	}
+        var userId = _userManager.GetUserId(User);
+        if (userId is null)
+        {
+            _logger.LogWarning("User Id {UserId} not found", userId);
+            return NotFound();
+        }
 
-	var dates = await _voteRepository.GetDates(userId);
+        var dates = await _voteRepository.GetDates(userId);
 
-	var movies = await _voteRepository.GetMovies(userId);
-	
-	var model = new
-	{
-	    Dates = dates,
-	    Movies = movies
-	};
-	
-	return View(model);
+        var movies = await _voteRepository.GetMovies(userId);
+
+        var model = new
+        {
+            Dates = dates,
+            Movies = movies
+        };
+
+        return View(model);
     }
     [HttpGet]
     [AllowAnonymous]
     public async Task<IActionResult> Plan()
     {
 
-	var topDate = await _voteRepository.GetTopDate();
-	
-	if (topDate is null)
-	{
-		_logger.LogWarning("Top date {TopDate} not found", topDate);
-		return View(new {Date = (DateTime?)null});
-	}
+        var topDate = await _voteRepository.GetTopDate();
 
-	var topMovie = await _voteRepository.GetTopMovie();
-	
-	if (topMovie is null)
-	{
-		_logger.LogWarning("Top movie {TopMovie} not found", topMovie);
-		return NotFound();
-	}
+        if (topDate is null)
+        {
+            _logger.LogWarning("Top date {TopDate} not found", topDate);
+            return View(new { Date = (DateTime?)null });
+        }
+
+        var topMovie = await _voteRepository.GetTopMovie();
+
+        if (topMovie is null)
+        {
+            _logger.LogWarning("Top movie {TopMovie} not found", topMovie);
+            return NotFound();
+        }
 
 
-	var model = new
-	{
-	    MovieId = topMovie.MovieId,
-	    Date = topDate.ProposedDate,
-	    MovieTitle = topMovie.Title,
-	    MovieImagePath = topMovie.ImagePath,
-	    Votes = topMovie.Votes
-	};
+        var model = new
+        {
+            MovieId = topMovie.MovieId,
+            Date = topDate.ProposedDate,
+            MovieTitle = topMovie.Title,
+            MovieImagePath = topMovie.ImagePath,
+            Votes = topMovie.Votes
+        };
 
-	return View(model);
+        return View(model);
     }
     [HttpPost]
     public async Task<IActionResult> ResetPlan()
     {
-	await _voteRepository.Reset();
+        await _voteRepository.Reset();
 
-	return RedirectToAction(nameof(Plan));
+        return RedirectToAction(nameof(Plan));
     }
-    
+
 }

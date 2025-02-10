@@ -14,14 +14,14 @@ public class FindController : Controller
     private readonly IMovieService _movieService;
     private readonly IMovieRepository _movieRepository;
     public FindController(ILogger<FindController> logger,
-			  IMovieService movieService,
-			  IMovieRepository movieRepository)
+              IMovieService movieService,
+              IMovieRepository movieRepository)
     {
-	_logger = logger;
-	_movieService = movieService;
-	_movieRepository = movieRepository;
+        _logger = logger;
+        _movieService = movieService;
+        _movieRepository = movieRepository;
     }
-    
+
     //POST: /find/{title}
     [Route("")]
     public async Task<IActionResult> Find(string? title)
@@ -37,22 +37,24 @@ public class FindController : Controller
         {
             var movie = await _movieService.GetMovieAsync(title);
 
-	    if (movie is null)
-	    {
-		_logger.LogInformation("Movie not found - Title: {Title}", title);
-		return NotFound("Movie not found");
-	    }
-	    
-	    _logger.LogInformation("Successfully found movie - Title: {Title}", title);
-	    
+            if (movie is null)
+            {
+                _logger.LogInformation("Movie not found - Title: {Title}", title);
+                return NotFound("Movie not found");
+            }
+
+            _logger.LogInformation("Successfully found movie - Title: {Title}", title);
+
             HomeMovieViewModel model = new(movie);
 
             return View(model);
         }
         catch (Exception ex)
         {
-	    _logger.LogError(ex, "Error searching for movie - Title: {Title}", title);
-            return StatusCode(500, "Internal server error");
+            _logger.LogError(ex, "Error searching for movie - Title: {Title}", title);
+            ViewData["FailStatus"] = "Did not find a movie with such a title";
+            ViewData["activeQuery"] = false;
+            return View();
         }
     }
 
@@ -66,22 +68,22 @@ public class FindController : Controller
         if (ModelState.IsValid)
         {
             HttpClient client = new();
-	    var imageBytes = await client.GetByteArrayAsync(movie.ImagePath);
-	    using var stream = new MemoryStream(imageBytes);
-	    IFormFile ImageFile =
-		new FormFile(baseStream: stream,
-			     baseStreamOffset: 0,
-			     length: imageBytes.Length,
-			     name: "ImagePath",
-			     fileName: Path.GetFileName(movie.ImagePath)!)
-	    {
-		Headers = new HeaderDictionary(),
-		ContentType = "image/png"
-	    };
+            var imageBytes = await client.GetByteArrayAsync(movie.ImagePath);
+            using var stream = new MemoryStream(imageBytes);
+            IFormFile ImageFile =
+            new FormFile(baseStream: stream,
+                     baseStreamOffset: 0,
+                     length: imageBytes.Length,
+                     name: "ImagePath",
+                     fileName: Path.GetFileName(movie.ImagePath)!)
+            {
+                Headers = new HeaderDictionary(),
+                ContentType = "image/png"
+            };
 
-	    affected = await _movieRepository.AddAsync(movie, ImageFile);
+            affected = await _movieRepository.AddAsync(movie, ImageFile);
         }
-	
+
         HomeMovieViewModel model = new(movie);
 
         if (affected == 0)
@@ -93,5 +95,5 @@ public class FindController : Controller
             return RedirectToAction("Movies", "Home");
         }
     }
-     
+
 }

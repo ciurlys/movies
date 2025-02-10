@@ -20,54 +20,54 @@ public class MovieService : IMovieService
     public MovieService(
         ILogger<MovieService> logger,
         IHttpClientFactory httpClientFactory,
-	IOptions<OmdbApiOptions> options,
-	IMapper mapper)
+    IOptions<OmdbApiOptions> options,
+    IMapper mapper)
     {
         _logger = logger;
         _httpClient = httpClientFactory.CreateClient("OMDB");
         _apiKey = options.Value.ApiKey;
-	_mapper = mapper;
+        _mapper = mapper;
     }
 
     public async Task<Movie?> GetMovieAsync(string title)
     {
-	using(_logger.BeginScope("Fetching movie - {Title}", title))
+        using (_logger.BeginScope("Fetching movie - {Title}", title))
         {
-	    try
-	    {
-		string apiUrl = $"?t={Uri.EscapeDataString(title)}&apikey={_apiKey}";
-		HttpResponseMessage response = await _httpClient.GetAsync(apiUrl);
-		
-		_logger.LogInformation("API response received - Status: {StatusCode}",
-				       response.StatusCode);
-		if (!response.IsSuccessStatusCode)
-		{
-		    _logger.LogWarning("API request failed - Status: {StatusCode}",
-				       response.StatusCode);
-		    return null;
-		}
-		var movieData = await response
-		    .Content
-		    .ReadFromJsonAsync<OmdbApiResponse>();
+            try
+            {
+                string apiUrl = $"?t={Uri.EscapeDataString(title)}&apikey={_apiKey}";
+                HttpResponseMessage response = await _httpClient.GetAsync(apiUrl);
 
-		if (movieData?.Response == "false")
-		{
-		    _logger.LogWarning("Movie not found in API response - Title: {Title}",
-				       title);
-		    return null;
-		}
-		_logger.LogInformation("Successfully retrieved movie - Title: {Title}",
-				       title);
-		
-		return _mapper.Map<Movie>(movieData!);
-	    }
-	    catch (Exception ex)
-	    {
-		_logger.LogError(ex, "Error retrieving movie - {Title}", title);
-		throw;
-	    }
+                _logger.LogInformation("API response received - Status: {StatusCode}",
+                               response.StatusCode);
+                if (!response.IsSuccessStatusCode)
+                {
+                    _logger.LogWarning("API request failed - Status: {StatusCode}",
+                               response.StatusCode);
+                    return null;
+                }
+                var movieData = await response
+                    .Content
+                    .ReadFromJsonAsync<OmdbApiResponse>();
 
-	}
-    }	
+                if (movieData?.Response == "false")
+                {
+                    _logger.LogWarning("Movie not found in API response - Title: {Title}",
+                               title);
+                    return null;
+                }
+                _logger.LogInformation("Successfully retrieved movie - Title: {Title}",
+                               title);
+
+                return _mapper.Map<Movie>(movieData!);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving movie - {Title}", title);
+                throw;
+            }
+
+        }
+    }
 }
 

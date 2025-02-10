@@ -2,7 +2,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Movies.EntityModels\Movies.EntityModels.csproj" />
-    <ProjectReference Include="..\Movies.Options\Movies.Options.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -11,7 +10,8 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
     <PackageReference Include="Npgsql" Version="9.0.2" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.2" />
   </ItemGroup>

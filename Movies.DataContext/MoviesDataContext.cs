@@ -1,12 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Npgsql;
+//using Npgsql;
+using Microsoft.EntityFrameworkCore.Sqlite;
 
 namespace Movies.EntityModels;
 
 public partial class MoviesDataContext : DbContext
 {
     public MoviesDataContext() { }
-    
+
     public MoviesDataContext(DbContextOptions<MoviesDataContext> options) : base(options)
     {
     }
@@ -18,21 +19,30 @@ public partial class MoviesDataContext : DbContext
     public DbSet<UserVoteMovie> UserVotesMovie { get; set; }
     public DbSet<UserCommentRead> UserCommentReads { get; set; }
     public DbSet<ChatMessage> ChatMessages { get; set; }
-    
+
+    // protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    // {
+
+    //     if (!optionsBuilder.IsConfigured)
+    //     {
+    //         NpgsqlConnectionStringBuilder builder = new();
+    //         builder.Host = "localhost";
+    //         builder.Port = 5432;
+    //         builder.Database = "Movies";
+    //         builder.Username = Environment.GetEnvironmentVariable("SQL_USR");
+    //         builder.Password = Environment.GetEnvironmentVariable("SQL_PWD");
+    //         optionsBuilder.UseNpgsql(builder.ConnectionString);
+    // 	}
+    // }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-
         if (!optionsBuilder.IsConfigured)
         {
-            NpgsqlConnectionStringBuilder builder = new();
-            builder.Host = "localhost";
-            builder.Port = 5432;
-            builder.Database = "Movies";
-            builder.Username = Environment.GetEnvironmentVariable("SQL_USR");
-            builder.Password = Environment.GetEnvironmentVariable("SQL_PWD");
-            optionsBuilder.UseNpgsql(builder.ConnectionString);
-	}
+            optionsBuilder.UseSqlite("Data Source=app.db");
+        }
     }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Movie>().HasData(
@@ -47,28 +57,28 @@ public partial class MoviesDataContext : DbContext
                 ImagePath = "inception.jpg"
             },
             new Movie
-            {   
+            {
                 MovieId = 2,
                 Title = "The Matrix",
                 Director = "The Wachowskis",
                 Description = "You know what it is",
-                ReleaseDate = new DateOnly(1999,3,31),
+                ReleaseDate = new DateOnly(1999, 3, 31),
                 Seen = true,
                 ImagePath = "matrix.jpg"
             }
         );
 
-	modelBuilder.Entity<UserVoteDate>()
-	    .HasIndex(uvd => new { uvd.UserId, uvd.DateId })
-	    .IsUnique();
-	modelBuilder.Entity<UserVoteMovie>()
-	    .HasIndex(uvm => new { uvm.UserId, uvm.MovieId })
-	    .IsUnique();
+        modelBuilder.Entity<UserVoteDate>()
+            .HasIndex(uvd => new { uvd.UserId, uvd.DateId })
+            .IsUnique();
+        modelBuilder.Entity<UserVoteMovie>()
+            .HasIndex(uvm => new { uvm.UserId, uvm.MovieId })
+            .IsUnique();
 
-	modelBuilder.Entity<UserCommentRead>()
-	    .HasKey(ucr => new { ucr.UserId, ucr.CommentId });
-	
+        modelBuilder.Entity<UserCommentRead>()
+            .HasKey(ucr => new { ucr.UserId, ucr.CommentId });
+
         base.OnModelCreating(modelBuilder);
     }
 
-}   
+}

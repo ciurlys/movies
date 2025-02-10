@@ -19,26 +19,26 @@
 		    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
 			<span class="navbar-toggler-icon"></span>
 		    </button>
-           <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav flex-grow-1">
-                    <li class="nav-item">
-                        <a class="nav-link" asp-area="Home" asp-controller="Index">Amphitheatre</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" asp-area="" asp-controller="Find" asp-action="">Expedition</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" asp-area="" asp-controller="Chat" asp-action="Index">Forum</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" asp-area="" asp-controller="Vote" asp-action="Movie">Senate</a>
-                    </li> 
-                    <li class="nav-item">
-                        <a class="nav-link" style="font-size: 1.8rem" asp-area="" asp-controller="Vote" asp-action="Plan">Agenda</a>
-                    </li>  
-                </ul>
-                <partial name="_LoginPartial" />
-           </div>
+                    <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between" id="navbarNav">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="Home" asp-controller="Index" id="moviesLink">Amphitheatre</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Find" asp-action="">Expedition</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Chat" asp-action="Index">Forum</a>
+                        </li>
+                        <li class="nav-item">
+			  <a class="nav-link" asp-area="" asp-controller="Vote" asp-action="Movie">Senate</a>
+                        </li> 
+			<li class="nav-item">
+			    <a class="nav-link position-absolute top-50 start-50 translate-middle" style="font-size: 1.8rem" asp-area="" asp-controller="Vote" asp-action="Plan">Agenda</a>
+                        </li> 	
+                    </ul>
+                    <partial name="_LoginPartial" />
+                    </div>
             </div>
         </nav>
     </header>

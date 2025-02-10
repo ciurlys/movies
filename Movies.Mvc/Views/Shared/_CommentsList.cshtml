@@ -2,9 +2,9 @@
 @using Microsoft.AspNetCore.Identity
 @inject UserManager<IdentityUser> UserManager
 
-    @if (Model != null && Model.Count != 0) 
+    @if (Model != null && Model?.Count != 0) 
     {
-	<h2 class="comments-header" data-movie-id="@Model[0].MovieId">Comments</h2>
+	<h2 class="comments-header" data-movie-id="@(Model?.FirstOrDefault()?.MovieId ?? 0)">Comments</h2>
 
     @foreach (Comment comment in Model)
     {

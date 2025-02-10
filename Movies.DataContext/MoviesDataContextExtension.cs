@@ -9,32 +9,32 @@ namespace Movies.EntityModels;
 public static class MoviesDataContextExtension
 {
     public static IServiceCollection AddMoviesDataContext(
-	this IServiceCollection services,
-	string? connectionString = null)
-   {
-       services.AddDbContext<MoviesDataContext>((serviceProvider, options) =>
-       {
-	          
-	   if (connectionString is null)
-	   {
-	       NpgsqlConnectionStringBuilder builder = new()
-	       {
-		   Host = "localhost",
-		   Port = 5432,
-		   Database = "Movies",
-		   Username = Environment.GetEnvironmentVariable("SQL_USR"),
-		   Password = Environment.GetEnvironmentVariable("SQL_PWD")
-	       };
-	       
-	       connectionString = builder.ConnectionString; 
-	   }
-	   
-	   options.UseNpgsql(connectionString);
+    this IServiceCollection services,
+    string? connectionString = null)
+    {
+        services.AddDbContext<MoviesDataContext>((serviceProvider, options) =>
+        {
 
-	   options.LogTo(MoviesDataContextLogger.WriteLine, new[]
-	       { Microsoft.EntityFrameworkCore
-	       .Diagnostics.RelationalEventId.CommandExecuting});	    
-	});
-       return services;
-   } 
+            if (connectionString is null)
+            {
+                NpgsqlConnectionStringBuilder builder = new()
+                {
+                    Host = "localhost",
+                    Port = 5432,
+                    Database = "Movies",
+                    Username = Environment.GetEnvironmentVariable("SQL_USR"),
+                    Password = Environment.GetEnvironmentVariable("SQL_PWD")
+                };
+
+                connectionString = builder.ConnectionString;
+            }
+
+            options.UseNpgsql(connectionString);
+
+            options.LogTo(MoviesDataContextLogger.WriteLine, new[]
+               { Microsoft.EntityFrameworkCore
+           .Diagnostics.RelationalEventId.CommandExecuting});
+        });
+        return services;
+    }
 }

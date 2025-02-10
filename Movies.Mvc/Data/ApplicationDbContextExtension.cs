@@ -12,7 +12,7 @@ public static class ApplicationDbContextExtension
         if (connectionString is null)
         {
             NpgsqlConnectionStringBuilder builder = new();
-            
+
             builder.Host = "localhost";
             builder.Port = 5432;
             builder.Database = "Users";

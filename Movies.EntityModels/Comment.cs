@@ -8,7 +8,7 @@ public class Comment
     [Required]
     public string? UserId { get; set; } //Author of the comment
     [Required]
-    public int MovieId{ get; set; } //Comment on what movie
+    public int MovieId { get; set; } //Comment on what movie
     public string? Title { get; set; }
     public string? Description { get; set; }
     [NotMapped]

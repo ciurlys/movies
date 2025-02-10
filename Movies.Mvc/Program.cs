@@ -30,16 +30,24 @@ builder.Services.Configure<DatabaseOptions>(
     builder.Configuration.GetSection(DatabaseOptions.SectionName));
 
 
-builder.Services.AddApplicationDbContext();
-builder.Services.AddDatabaseDeveloperPageExceptionFilter();  //Database for storing Users
-builder.Services.AddMoviesDataContext(); //Database for storing Movies
+// builder.Services.AddApplicationDbContext();
+// builder.Services.AddDatabaseDeveloperPageExceptionFilter();  //Database for storing Users
+// builder.Services.AddMoviesDataContext(); //Database for storing Movies
+
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+                            options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddDbContext<MoviesDataContext>(options =>
+                            options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+
 
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services.AddHttpClient();
-builder.Services.AddHttpClient("OMDB", client => 
+builder.Services.AddHttpClient("OMDB", client =>
 {
     client.BaseAddress = new Uri("https://www.omdbapi.com/");
 });
@@ -60,7 +68,7 @@ builder.Host.UseSerilog((context, services, configuration) => configuration
     .WriteTo.Console()
     .WriteTo.File("../Movies.Logs/Serilog.txt", rollingInterval: RollingInterval.Day));
 
-builder.Services.AddSignalR(options => 
+builder.Services.AddSignalR(options =>
 {
     options.EnableDetailedErrors = true;
 });
@@ -69,11 +77,13 @@ builder.Services.AddSession();
 
 builder.Services.AddMemoryCache();
 
-builder.Services.Configure<IpRateLimitOptions>(options => {
+builder.Services.Configure<IpRateLimitOptions>(options =>
+{
 
     builder.Configuration.GetSection("IpRateLimiting").Bind(options);
-    
-    options.QuotaExceededResponse = new QuotaExceededResponse {
+
+    options.QuotaExceededResponse = new QuotaExceededResponse
+    {
         Content = "Too many requests. Try again later.",
         ContentType = "text/plain"
     };
@@ -84,7 +94,8 @@ builder.Services.AddSingleton<IProcessingStrategy, AsyncKeyLockProcessingStrateg
 builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
 
 
-builder.Services.Configure<IdentityOptions>(options =>{
+builder.Services.Configure<IdentityOptions>(options =>
+{
     options.SignIn.RequireConfirmedAccount = false;
     options.SignIn.RequireConfirmedEmail = false;
     options.User.RequireUniqueEmail = false;
@@ -126,9 +137,9 @@ app.MapStaticAssets();
 
 app.Use(async (context, next) =>
 {
-    await next(); 
+    await next();
     if (context.Request.Path.StartsWithSegments("/assets") ||
-	context.Request.Path.StartsWithSegments("/covers"))
+    context.Request.Path.StartsWithSegments("/covers"))
     {
         context.Response.Headers["Cache-Control"] = "public, max-age=604800, immutable";
     }

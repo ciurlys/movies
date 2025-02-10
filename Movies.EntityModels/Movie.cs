@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Movies.EntityModels;
 
-public class Movie 
+public class Movie
 {
     public int MovieId { get; set; }
     [Required]

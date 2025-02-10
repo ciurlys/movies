@@ -14,14 +14,14 @@ public class HomeController : Controller
     private const int ITEMS_PER_PAGE = 9;
     private readonly ILogger<HomeController> _logger;
     private readonly IMovieRepository _movieRepository;
-    private readonly UserManager<IdentityUser> _userManager;    
+    private readonly UserManager<IdentityUser> _userManager;
     public HomeController(ILogger<HomeController> logger,
-			  IMovieRepository movieRepository,
-			  UserManager<IdentityUser> userManager)
+              IMovieRepository movieRepository,
+              UserManager<IdentityUser> userManager)
     {
         _logger = logger;
-	_userManager = userManager;
-	_movieRepository = movieRepository;
+        _userManager = userManager;
+        _movieRepository = movieRepository;
     }
 
     public IActionResult Index()
@@ -29,47 +29,51 @@ public class HomeController : Controller
         return View();
     }
     //GET: /home/movies/{title:string}{onlySeen:bool}{page:int}
-    public async Task<IActionResult> Movies(string? title, bool? onlySeen, int? page)
+    public async Task<IActionResult> Movies(string? title, bool? onlySeen, int page = 0)
     {
-	var userId = _userManager.GetUserId(User);
-	
-	if (userId is null)
-	{
-		_logger.LogWarning("User Id {UserId} not found", userId);
-		return NotFound();
-	}
+        if (title is null)
+            title = "";
 
-	onlySeen = onlySeen ?? false;
-	ViewData["onlySeen"] = onlySeen;
-	
-	HomeMoviesViewModel model = new HomeMoviesViewModel {
-	    Movies =
-	    (!string.IsNullOrWhiteSpace(title))
-	    ? await _movieRepository.GetByTitleAsync(
-		title,
-		onlySeen,
-		page,
-		ITEMS_PER_PAGE,
-		userId
-	    )
-	    : await _movieRepository.GetAllAsync(
-		onlySeen,
-		page,
-		ITEMS_PER_PAGE,
-		userId)
-	};
-	
-	int count = await _movieRepository.CountAsync(title, onlySeen);
+        var userId = _userManager.GetUserId(User);
+
+        if (userId is null)
+        {
+            _logger.LogWarning("User Id {UserId} not found", userId);
+            return NotFound();
+        }
+
+        onlySeen = onlySeen ?? false;
+        ViewData["onlySeen"] = onlySeen;
+
+        HomeMoviesViewModel model = new HomeMoviesViewModel
+        {
+            Movies =
+            (!string.IsNullOrWhiteSpace(title))
+            ? await _movieRepository.GetByTitleAsync(
+            title,
+            onlySeen,
+            page,
+            ITEMS_PER_PAGE,
+            userId
+            )
+            : await _movieRepository.GetAllAsync(
+            onlySeen,
+            page,
+            ITEMS_PER_PAGE,
+            userId)
+        };
+
+        int count = await _movieRepository.CountAsync(title, onlySeen);
         ViewData["PageCount"] = (count + ITEMS_PER_PAGE - 1) / ITEMS_PER_PAGE;
         return View(model);
     }
 
     //GET: /home/editmove/{id}
     [Authorize(Roles = "Administrators")]
-    public async Task<IActionResult> EditMovie(int? id)
+    public async Task<IActionResult> EditMovie(int id)
     {
         HomeMovieViewModel model = new(await _movieRepository.GetByIdAsync(id));
-	
+
         //Views/Home/EditMovie.cshtml
         return View(model);
     }
@@ -80,15 +84,15 @@ public class HomeController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> EditMovie(Movie movie, IFormFile? ImageFile)
     {
-	int affected = 0;
+        int affected = 0;
         if (ModelState.IsValid)
         {
-	    affected = await _movieRepository.UpdateAsync(movie, ImageFile);
+            affected = await _movieRepository.UpdateAsync(movie, ImageFile);
         }
 
-	if (affected == 0)
+        if (affected == 0)
         {
-	    HomeMovieViewModel model = new(movie);
+            HomeMovieViewModel model = new(movie);
             //Views/Home/EditMovie.cshtml
             return View(model);
         }
@@ -100,33 +104,24 @@ public class HomeController : Controller
 
     [HttpDelete]
     [Authorize(Roles = "Administrators")]
-    public async Task<IActionResult> DeleteMovie(int? id)
+    public async Task<IActionResult> DeleteMovie(int id)
     {
-        int affected = 0;
-        Movie? movie = await _movieRepository.GetByIdAsync(id);
-
-        if (movie is not null)
+        if (id > 0)
         {
-            affected = await _movieRepository.RemoveAsync(movie);
-        }
-
-        if (affected == 0)
-        {
-	    HomeMovieViewModel model = new(movie);
-            // Views/Home/DeleteMovie.cshtml
-            return View(model);
+            await _movieRepository.RemoveAsync(id);
         }
         else
         {
-            return RedirectToAction("Movies");
+            _logger.LogError("Invalid Id {Id}", id);
         }
+        return RedirectToAction("Movies");
     }
 
     //GET: /home/addmovie
     [Authorize(Roles = "Administrators")]
     public IActionResult AddMovie()
     {
-	var model = new HomeMovieViewModel(new Movie()); 
+        var model = new HomeMovieViewModel(new Movie());
         return View(model);
     }
 
@@ -135,15 +130,15 @@ public class HomeController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> AddMovie(Movie movie, IFormFile? ImageFile)
     {
-	int affected = 0;
+        int affected = 0;
         if (ModelState.IsValid)
         {
-	    affected = await _movieRepository.AddAsync(movie, ImageFile);
+            affected = await _movieRepository.AddAsync(movie, ImageFile);
         }
 
         if (affected == 0)
         {
-	    HomeMovieViewModel model = new(movie);
+            HomeMovieViewModel model = new(movie);
             // Views/Home/AddMovie.cshtml
             return View(model);
         }

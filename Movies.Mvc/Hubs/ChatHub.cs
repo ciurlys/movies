@@ -10,22 +10,22 @@ public class ChatHub : Hub
     private readonly MoviesDataContext _db;
     private readonly UserManager<IdentityUser> _userManager;
 
-    public ChatHub (MoviesDataContext db, UserManager<IdentityUser> userManager)
+    public ChatHub(MoviesDataContext db, UserManager<IdentityUser> userManager)
     {
-	_db = db;
-	_userManager = userManager;
+        _db = db;
+        _userManager = userManager;
     }
-    
+
     public async Task SendMessage(MessageModel message)
     {
-	var chatMessage = new ChatMessage
-	{
-	    SenderName = message.From,
-	    MessageText = message.Message
-	};
+        var chatMessage = new ChatMessage
+        {
+            SenderName = message.From,
+            MessageText = message.Message
+        };
 
-	_db.ChatMessages.Add(chatMessage);
-	await _db.SaveChangesAsync();
+        _db.ChatMessages.Add(chatMessage);
+        await _db.SaveChangesAsync();
 
         IClientProxy proxy;
         proxy = Clients.All;

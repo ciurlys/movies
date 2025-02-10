@@ -1,5 +1,5 @@
 namespace Movies.Models;
-   
+
 public class OmdbApiResponse
 {
     public string? Title { get; set; }

@@ -10,43 +10,43 @@ public class ImageService : IImageService
 
     public ImageService(IWebHostEnvironment webHostEnvironment)
     {
-	_webHostEnvironment = webHostEnvironment;
+        _webHostEnvironment = webHostEnvironment;
     }
 
     public async Task<string> SaveImageAsync(IFormFile imageFile,
-					     string? existingPath = "")
+                         string? existingPath = "")
     {
-	if (imageFile == null || imageFile.Length == 0)
-	    return existingPath!;
+        if (imageFile == null || imageFile.Length == 0)
+            return existingPath!;
 
-	if (!string.IsNullOrEmpty(existingPath))
-	    DeleteImage(existingPath);
+        if (!string.IsNullOrEmpty(existingPath))
+            DeleteImage(existingPath);
 
-	var uploadsPath = Path.Combine(_webHostEnvironment.WebRootPath,
-				       UPLOADS_FOLDER);
-	Directory.CreateDirectory(uploadsPath);
+        var uploadsPath = Path.Combine(_webHostEnvironment.WebRootPath,
+                           UPLOADS_FOLDER);
+        Directory.CreateDirectory(uploadsPath);
 
-	var uniqueFileName = $"{Guid.NewGuid()}_{imageFile.FileName}";
-	var filePath = Path.Combine(uploadsPath, uniqueFileName);
+        var uniqueFileName = $"{Guid.NewGuid()}_{imageFile.FileName}";
+        var filePath = Path.Combine(uploadsPath, uniqueFileName);
 
 
-	using (var fileStream = new FileStream(filePath, FileMode.Create))
-	{
-	    await imageFile.CopyToAsync(fileStream);
-	}
-	return uniqueFileName;
+        using (var fileStream = new FileStream(filePath, FileMode.Create))
+        {
+            await imageFile.CopyToAsync(fileStream);
+        }
+        return uniqueFileName;
     }
 
     public void DeleteImage(string imagePath)
     {
-	if (string.IsNullOrEmpty(imagePath))
-	{
-	    var fullPath = Path.Combine(_webHostEnvironment.WebRootPath,
-					UPLOADS_FOLDER,
-					imagePath);
-	    if (File.Exists(fullPath))
-		File.Delete(fullPath);
-	}
+        if (string.IsNullOrEmpty(imagePath))
+        {
+            var fullPath = Path.Combine(_webHostEnvironment.WebRootPath,
+                        UPLOADS_FOLDER,
+                        imagePath);
+            if (File.Exists(fullPath))
+                File.Delete(fullPath);
+        }
 
     }
 }
