@@ -1,3 +1,6 @@
 **/bin/
 **/obj/
 **/Movies.Logs
+
+Movies.Mvc/appsettings.Development.json
+Movies.Mvc/appsettings.Production.json

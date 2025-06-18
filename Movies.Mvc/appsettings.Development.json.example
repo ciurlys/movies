@@ -1,0 +1,15 @@
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+    "OmdbApi": {
+	"ApiKey": "your-api-key"
+    },
+    "DatabaseOptions": {
+	"Username": "your-username",
+	"Password": "your-password"
+    }
+}
