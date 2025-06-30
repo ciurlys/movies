@@ -1,10 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
-//using Npgsql;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Sqlite;
 
 namespace Movies.EntityModels;
 
-public partial class MoviesDataContext : DbContext
+public partial class MoviesDataContext : IdentityDbContext
 {
     public MoviesDataContext() { }
 

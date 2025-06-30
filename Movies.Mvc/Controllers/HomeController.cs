@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Movies.Mvc.Models;
+using Movies.Models;
 using Movies.EntityModels;
 using Movies.Repositories;
 using Microsoft.AspNetCore.Identity;

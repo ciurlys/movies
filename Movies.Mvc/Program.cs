@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.General;
-using Movies.Mvc.Data;
 using Movies.EntityModels;
 using System.Globalization;
 using Movies.SignalR.Service.Hubs;
@@ -23,6 +22,7 @@ CultureInfo.DefaultThreadCurrentCulture = defaultCulture;
 CultureInfo.DefaultThreadCurrentUICulture = defaultCulture;
 
 var builder = WebApplication.CreateBuilder(args);
+
 builder.Services.Configure<OmdbApiOptions>(
     builder.Configuration.GetSection(OmdbApiOptions.SectionName));
 
@@ -30,21 +30,12 @@ builder.Services.Configure<DatabaseOptions>(
     builder.Configuration.GetSection(DatabaseOptions.SectionName));
 
 
-// builder.Services.AddApplicationDbContext();
-// builder.Services.AddDatabaseDeveloperPageExceptionFilter();  //Database for storing Users
-// builder.Services.AddMoviesDataContext(); //Database for storing Movies
-
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-                            options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
-
 builder.Services.AddDbContext<MoviesDataContext>(options =>
                             options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-
-
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddRoles<IdentityRole>()
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+    .AddEntityFrameworkStores<MoviesDataContext>();
 
 builder.Services.AddHttpClient();
 builder.Services.AddHttpClient("OMDB", client =>
@@ -137,12 +128,13 @@ app.MapStaticAssets();
 
 app.Use(async (context, next) =>
 {
-    await next();
+
     if (context.Request.Path.StartsWithSegments("/assets") ||
     context.Request.Path.StartsWithSegments("/covers"))
     {
         context.Response.Headers["Cache-Control"] = "public, max-age=604800, immutable";
     }
+    await next();
 });
 
 app.MapHub<ChatHub>("/chat");

@@ -1,5 +1,5 @@
 ﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
-@model Movies.Mvc.Models.HomeMoviesViewModel
+@model Movies.Models.HomeMoviesViewModel
 @using Microsoft.AspNetCore.Identity
 @inject UserManager<IdentityUser> UserManager
 @using Movies.EntityModels;
@@ -8,10 +8,8 @@
     var user = await UserManager.FindByNameAsync(User.Identity!.Name!);
     var isAdmin = user != null && await UserManager.IsInRoleAsync(user, "Administrators");
 }
-
-    
     <div class="row">
-	<h1 class="display-2">Movies</h1>
+    	<h1 class="display-2">Movies</h1>
 
 	<div class="container">
 	    <div class="row">

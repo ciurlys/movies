@@ -1,5 +1,5 @@
 using Movies.EntityModels;
 
-namespace Movies.Mvc.Models;
+namespace Movies.Models;
 
 public record HomeMovieViewModel(Movie? Movie);

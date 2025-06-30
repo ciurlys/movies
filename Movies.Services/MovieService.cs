@@ -20,8 +20,8 @@ public class MovieService : IMovieService
     public MovieService(
         ILogger<MovieService> logger,
         IHttpClientFactory httpClientFactory,
-    IOptions<OmdbApiOptions> options,
-    IMapper mapper)
+	IOptions<OmdbApiOptions> options,
+	IMapper mapper)
     {
         _logger = logger;
         _httpClient = httpClientFactory.CreateClient("OMDB");

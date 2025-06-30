@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Movies.Mvc.Models;
+using Movies.Models;
 using Movies.EntityModels;
 using Movies.Services;
 using Movies.Repositories;
