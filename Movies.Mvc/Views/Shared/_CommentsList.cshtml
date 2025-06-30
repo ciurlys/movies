@@ -1,7 +1,7 @@
 @using Movies.EntityModels
 @using Microsoft.AspNetCore.Identity
 @inject UserManager<IdentityUser> UserManager
-
+@model List<Comment>
     @if (Model != null && Model?.Count != 0) 
     {
 	<h2 class="comments-header" data-movie-id="@(Model?.FirstOrDefault()?.MovieId ?? 0)">Comments</h2>

@@ -36,11 +36,12 @@ public class FindController : Controller
         try
         {
             var movie = await _movieService.GetMovieAsync(title);
-
+	    
             if (movie is null)
             {
                 _logger.LogInformation("Movie not found - Title: {Title}", title);
-                return NotFound("Movie not found");
+		ViewData["FailStatus"] = "Problem with API";
+		ViewData["activeQuery"] = false;
             }
 
             _logger.LogInformation("Successfully found movie - Title: {Title}", title);
